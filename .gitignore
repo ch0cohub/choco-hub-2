@@ -18,3 +18,5 @@ entrypoint.sh
 deployments.log
 test_file.txt
 chocohub/
+chocohub_env/
+chocohub2_venv/
