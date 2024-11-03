@@ -4,6 +4,7 @@ import hashlib
 import shutil
 from typing import Optional
 import uuid
+import tempfile
 
 from flask import request
 
@@ -24,6 +25,7 @@ from app.modules.hubfile.repositories import (
     HubfileViewRecordRepository
 )
 from core.services.BaseService import BaseService
+from zipfile import ZipFile
 
 logger = logging.getLogger(__name__)
 
@@ -76,6 +78,9 @@ class DataSetService(BaseService):
 
     def count_synchronized_datasets(self):
         return self.repository.count_synchronized_datasets()
+    
+    def is_synchronized(self, dataset_id: int) -> bool:
+        return self.repository.is_synchronized(dataset_id)
 
     def count_feature_models(self):
         return self.feature_model_service.count_feature_models()
@@ -139,6 +144,34 @@ class DataSetService(BaseService):
     def get_uvlhub_doi(self, dataset: DataSet) -> str:
         domain = os.getenv('DOMAIN', 'localhost')
         return f'http://{domain}/doi/{dataset.ds_meta_data.dataset_doi}'
+       
+    def zip_all_datasets(self) -> str:
+        temp_dir = tempfile.mkdtemp()
+        zip_path = os.path.join(temp_dir, "all_datasets.zip")
+
+        with ZipFile(zip_path, "w") as zipf:
+            for user_dir in os.listdir("uploads"):
+                user_path = os.path.join("uploads", user_dir)
+
+                if os.path.isdir(user_path) and user_dir.startswith("user_"):
+                    for dataset_dir in os.listdir(user_path):
+                        dataset_path = os.path.join(user_path, dataset_dir)
+
+                        if os.path.isdir(dataset_path) and dataset_dir.startswith("dataset_"):
+                            dataset_id = int(dataset_dir.split("_")[1])
+
+                            if self.is_synchronized(dataset_id):
+                                for subdir, dirs, files in os.walk(dataset_path):
+                                    for file in files:
+                                        full_path = os.path.join(subdir, file)
+
+                                        relative_path = os.path.relpath(full_path, dataset_path)
+                                        zipf.write(
+                                            full_path,
+                                            arcname=os.path.join(dataset_dir, relative_path),
+                                        )
+        
+        return zip_path
 
 
 class AuthorService(BaseService):
