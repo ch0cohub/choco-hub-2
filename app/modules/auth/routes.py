@@ -30,7 +30,6 @@ def show_signup_form():
             # We try to create the user
             user = authentication_service.create_with_profile(**form.data)
             signupvalidation_service.send_confirmation_email(user.email)
-            flash('A confirmation email has been sent. Please verify your email to activate your account.', 'info')
 
         except IntegrityError as exc:
             db.session.rollback()
@@ -40,7 +39,7 @@ def show_signup_form():
                 flash(f'Error creating user: {exc}', 'danger')
             return render_template("auth/signup_form.html", form=form)
 
-        return redirect(url_for("public.index"))
+        return redirect(url_for("signupvalidation.index"))  # enviar a esperar verificación
 
     return render_template("auth/signup_form.html", form=form)
 
@@ -64,3 +63,5 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('public.index'))
+
+

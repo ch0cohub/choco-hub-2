@@ -1,11 +1,16 @@
 {% extends "base_template.html" %}
 
-{% block title %}View signupvalidation{% endblock %}
+{% block title %}Awaiting Email Verification{% endblock %}
 
 {% block content %}
-
+    <div class="verification-message">
+        <h2>Thank you for signing up!</h2> </br>
+        <p>We've sent you a verification email. Please check your inbox and click on the link to verify your account.</p>
+        <p>If you don’t see the email in your inbox, please check your spam or junk folder.</p>
+    </div>
 {% endblock %}
 
+
 {% block scripts %}
-    <script src="{{ url_for('signupvalidation.assets', subfolder='js', filename='scripts.js') }}"></script>
+    <script src="{{ url_for('signupvalidation.scripts', subfolder='js', filename='scripts.js') }}"></script>
 {% endblock %}
