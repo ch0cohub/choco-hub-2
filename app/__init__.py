@@ -11,6 +11,8 @@ from core.managers.module_manager import ModuleManager
 from core.managers.config_manager import ConfigManager
 from core.managers.error_handler_manager import ErrorHandlerManager
 from core.managers.logging_manager import LoggingManager
+from app.modules.mailconfiguration.services import MailconfigurationService
+
 
 # Load environment variables
 load_dotenv()
@@ -18,11 +20,12 @@ load_dotenv()
 # Create the instances
 db = SQLAlchemy()
 migrate = Migrate()
+mail_configuration = MailconfigurationService()
 
 
 def create_app(config_name='development'):
     app = Flask(__name__)
-
+    
     # Load configuration according to environment
     config_manager = ConfigManager(app)
     config_manager.load_config(config_name=config_name)
@@ -63,7 +66,9 @@ def create_app(config_name='development'):
             'DOMAIN': os.getenv('DOMAIN', 'localhost'),
             'APP_VERSION': get_app_version()
         }
-
+        
+    mail_configuration.init_app(app)
+    
     return app
 
 
