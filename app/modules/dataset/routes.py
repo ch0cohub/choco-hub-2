@@ -283,12 +283,6 @@ def get_unsynchronized_dataset(dataset_id):
 
 @dataset_bp.route("/dataset/download/all", methods=["GET"])
 def download_all_dataset():
-    zip_path = dataset_service.zip_all_datasets()
-
-    # Obtener la fecha actual en el formato deseado (por ejemplo, YYYYMMDD)
-    current_date = datetime.now().strftime("%d_%m_%Y")
-
-    # Crear el nombre del archivo con la fecha
-    zip_filename = f"chocohub_date_from_{current_date}.zip"
-
+      
+    zip_path, zip_filename = dataset_service.generate_datasets_and_name_zip()
     return send_file(zip_path, as_attachment=True, download_name=zip_filename)
