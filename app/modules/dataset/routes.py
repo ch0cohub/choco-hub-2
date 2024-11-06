@@ -16,6 +16,7 @@ from flask import (
     make_response,
     abort,
     url_for,
+    send_file,
 )
 from flask_login import login_required, current_user
 
@@ -278,3 +279,10 @@ def get_unsynchronized_dataset(dataset_id):
         abort(404)
 
     return render_template("dataset/view_dataset.html", dataset=dataset)
+
+
+@dataset_bp.route("/dataset/download/all", methods=["GET"])
+def download_all_dataset():
+      
+    zip_path, zip_filename = dataset_service.generate_datasets_and_name_zip()
+    return send_file(zip_path, as_attachment=True, download_name=zip_filename)

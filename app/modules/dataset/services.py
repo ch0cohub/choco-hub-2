@@ -4,6 +4,7 @@ import hashlib
 import shutil
 from typing import Optional
 import uuid
+import tempfile
 
 from flask import request
 
@@ -24,6 +25,9 @@ from app.modules.hubfile.repositories import (
     HubfileViewRecordRepository
 )
 from core.services.BaseService import BaseService
+from zipfile import ZipFile
+from datetime import datetime
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -76,6 +80,9 @@ class DataSetService(BaseService):
 
     def count_synchronized_datasets(self):
         return self.repository.count_synchronized_datasets()
+                  
+    def is_synchronized(self, dataset_id: int) -> bool:
+        return self.repository.is_synchronized(dataset_id)
 
     def count_feature_models(self):
         return self.feature_model_service.count_feature_models()
@@ -91,6 +98,9 @@ class DataSetService(BaseService):
 
     def total_dataset_views(self) -> int:
         return self.dsviewrecord_repostory.total_dataset_views()
+    
+    def get_dataset_name(self, dataset_id: int) -> str:
+        return self.repository.get_dataset_name(dataset_id)
 
     def create_from_form(self, form, current_user) -> DataSet:
         main_author = {
@@ -139,6 +149,31 @@ class DataSetService(BaseService):
     def get_uvlhub_doi(self, dataset: DataSet) -> str:
         domain = os.getenv('DOMAIN', 'localhost')
         return f'http://{domain}/doi/{dataset.ds_meta_data.dataset_doi}'
+    
+    def get_synchronized_datasets(self) -> list[tuple[str, str]]:
+        datasets = []
+        for user_dir in Path("uploads").glob("user_*"):
+            for dataset_dir in user_dir.glob("dataset_*"):
+                dataset_id = int(dataset_dir.name.split("_")[1])
+                if self.is_synchronized(dataset_id):
+                    dataset_name = self.get_dataset_name(dataset_id)
+                    datasets.append((dataset_name, str(dataset_dir)))
+        return datasets
+         
+    def generate_datasets_and_name_zip(self) -> tuple[str, str]:
+        temp_dir = Path(tempfile.mkdtemp())
+        zip_filename = f"chocohub2_datasets_from_{datetime.now().strftime('%d_%m_%Y')}.zip"
+        zip_path = temp_dir / zip_filename
+
+        with ZipFile(zip_path, "w") as zipf:
+            for dataset_info in self.get_synchronized_datasets():
+                dataset_name, dataset_path = dataset_info
+                for file_path in Path(dataset_path).rglob('*'):
+                    if file_path.is_file():
+                        relative_path = file_path.relative_to(dataset_path)
+                        zipf.write(file_path, arcname=Path(dataset_name) / relative_path)
+
+        return str(zip_path), zip_filename
 
 
 class AuthorService(BaseService):
