@@ -18,8 +18,5 @@ def confirm_user(token):
     except Exception as exc:
         flash(exc.args[0], "danger")
         return redirect(url_for("auth.show_signup_form"))
-
-    # Log user
-    # login_user(user, remember=True)
-    
+        
     return redirect(url_for("public.index"))
