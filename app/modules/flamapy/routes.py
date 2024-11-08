@@ -176,3 +176,116 @@ def download_glencoe_dataset(dataset_id):
 
         # Enviar el archivo ZIP en la respuesta
     return send_file(zip_path, as_attachment=True, download_name=f'{dataset_title}_glencoe.zip')
+
+
+
+
+@flamapy_bp.route('/flamapy/download/DIMACS/<int:dataset_id>', methods=['GET'])
+def download_dimacs_dataset(dataset_id):
+    # Obtener el dataset o devolver un error 404
+    dataset = dataset_service.get_or_404(dataset_id)
+    dataset_title = dataset.ds_meta_data.title
+
+    # Ruta a los archivos UVL dentro del dataset
+    file_path = f"uploads/user_{dataset.user_id}/dataset_{dataset.id}/"
+
+    # Crear un directorio temporal para almacenar el archivo ZIP
+    temp_dir = tempfile.mkdtemp()
+    zip_path = os.path.join(temp_dir, f"{dataset_title}_dimacs.zip")
+    
+    # Crear la carpeta dentro del ZIP con el mismo nombre que el archivo ZIP (sin la extensión .zip)
+    folder_name = f"{dataset_title}_dimacs"
+    
+    @after_this_request
+    def cleanup(response):
+        try:
+            os.remove(zip_path)
+            os.rmdir(temp_dir)
+        except Exception as e:
+            # Podrías querer registrar el error si la limpieza falla
+            print(f"Error al limpiar archivos temporales: {e}")
+        return response
+
+    # Crear el archivo ZIP
+    with zipfile.ZipFile(zip_path, "w") as zipf:
+        # Buscar todos los archivos UVL en el directorio del dataset
+        for subdir, dirs, files in os.walk(file_path):
+            for file in files:
+                if file.endswith('.uvl'):  # Filtrar solo archivos UVL
+                    full_path = os.path.join(subdir, file)
+
+                    # Crear un archivo temporal para el archivo convertido
+                    temp_file = tempfile.NamedTemporaryFile(suffix='.cnf', delete=False)
+                    try:
+                        # Convertir el archivo UVL a formato DIMACS
+                        fm = UVLReader(full_path).transform()
+                        sat = FmToPysat(fm).transform()
+                        DimacsWriter(temp_file.name, sat).transform()
+
+                        # Crear la ruta relativa dentro de la carpeta en el ZIP
+                        relative_path = os.path.relpath(full_path, file_path)
+                        file_in_zip = os.path.join(folder_name, f"{relative_path.replace('.uvl', '')}_dimacs.cnf")
+
+                        # Agregar el archivo convertido al ZIP dentro de la carpeta
+                        zipf.write(temp_file.name, arcname=file_in_zip)
+                    finally:
+                        # Eliminar el archivo CNF temporal
+                        os.remove(temp_file.name)
+
+    # Enviar el archivo ZIP en la respuesta
+    return send_file(zip_path, as_attachment=True, download_name=f'{dataset_title}_dimacs.zip')
+
+
+@flamapy_bp.route('/flamapy/download/SPLOT/<int:dataset_id>', methods=['GET'])
+def download_splot_dataset(dataset_id):
+    # Obtener el dataset o devolver un error 404
+    dataset = dataset_service.get_or_404(dataset_id)
+    dataset_title = dataset.ds_meta_data.title
+
+    # Ruta a los archivos UVL dentro del dataset
+    file_path = f"uploads/user_{dataset.user_id}/dataset_{dataset.id}/"
+
+    # Crear un directorio temporal para almacenar el archivo ZIP
+    temp_dir = tempfile.mkdtemp()
+    zip_path = os.path.join(temp_dir, f"{dataset_title}_splot.zip")
+    
+    # Crear la carpeta dentro del ZIP con el mismo nombre que el archivo ZIP (sin la extensión .zip)
+    folder_name = f"{dataset_title}_splot"
+    
+    @after_this_request
+    def cleanup(response):
+        try:
+            os.remove(zip_path)
+            os.rmdir(temp_dir)
+        except Exception as e:
+            # Podrías querer registrar el error si la limpieza falla
+            print(f"Error al limpiar archivos temporales: {e}")
+        return response
+
+    # Crear el archivo ZIP
+    with zipfile.ZipFile(zip_path, "w") as zipf:
+        # Buscar todos los archivos UVL en el directorio del dataset
+        for subdir, dirs, files in os.walk(file_path):
+            for file in files:
+                if file.endswith('.uvl'):  # Filtrar solo archivos UVL
+                    full_path = os.path.join(subdir, file)
+
+                    # Crear un archivo temporal para el archivo convertido
+                    temp_file = tempfile.NamedTemporaryFile(suffix='.splx', delete=False)
+                    try:
+                        # Convertir el archivo UVL a formato SPLOT
+                        fm = UVLReader(full_path).transform()
+                        SPLOTWriter(temp_file.name, fm).transform()
+
+                        # Crear la ruta relativa dentro de la carpeta en el ZIP
+                        relative_path = os.path.relpath(full_path, file_path)
+                        file_in_zip = os.path.join(folder_name, f"{relative_path.replace('.uvl', '')}_splot.splx")
+
+                        # Agregar el archivo convertido al ZIP dentro de la carpeta
+                        zipf.write(temp_file.name, arcname=file_in_zip)
+                    finally:
+                        # Eliminar el archivo splx temporal
+                        os.remove(temp_file.name)
+
+        # Enviar el archivo ZIP en la respuesta
+    return send_file(zip_path, as_attachment=True, download_name=f'{dataset_title}_splot.zip')
