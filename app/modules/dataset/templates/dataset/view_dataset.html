@@ -342,6 +342,16 @@
                         GLENCOE 
                     </a>
                 </li>
+                <li>
+                    <a class="dropdown-item" href="{{ url_for('flamapy.download_dimacs_dataset', dataset_id=dataset.id) }}">
+                        DIMACS 
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{{ url_for('flamapy.download_splot_dataset', dataset_id=dataset.id) }}">
+                        SPLOT 
+                    </a>
+                </li>
             </ul>
         </div>
 
