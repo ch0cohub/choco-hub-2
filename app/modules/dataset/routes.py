@@ -180,11 +180,12 @@ def delete():
 @dataset_bp.route("/dataset/download/<int:dataset_id>", methods=["GET"])
 def download_dataset(dataset_id):
     dataset = dataset_service.get_or_404(dataset_id)
+    dataset_title = dataset.ds_meta_data.title
 
     file_path = f"uploads/user_{dataset.user_id}/dataset_{dataset.id}/"
 
     temp_dir = tempfile.mkdtemp()
-    zip_path = os.path.join(temp_dir, f"dataset_{dataset_id}.zip")
+    zip_path = os.path.join(temp_dir, f"{dataset_title}_uvl.zip")
 
     with ZipFile(zip_path, "w") as zipf:
         for subdir, dirs, files in os.walk(file_path):
@@ -209,7 +210,7 @@ def download_dataset(dataset_id):
         resp = make_response(
             send_from_directory(
                 temp_dir,
-                f"dataset_{dataset_id}.zip",
+                f"{dataset_title}_uvl.zip",
                 as_attachment=True,
                 mimetype="application/zip",
             )
@@ -218,7 +219,7 @@ def download_dataset(dataset_id):
     else:
         resp = send_from_directory(
             temp_dir,
-            f"dataset_{dataset_id}.zip",
+            f"{dataset_title}_uvl.zip",
             as_attachment=True,
             mimetype="application/zip",
         )
