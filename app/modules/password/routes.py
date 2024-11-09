@@ -22,6 +22,8 @@ def forgot_password():
 
             password_service.send_change_password_email(email)
             flash('Check your email for the instructions to change your password', 'success')
+            return redirect(url_for('auth.login'))
+
         except Exception as exc:
             flash(f'An error occurred while trying to change the password: {exc}', 'danger')
         return redirect(url_for('auth.login'))
