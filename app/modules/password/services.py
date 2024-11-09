@@ -30,12 +30,12 @@ class PasswordService(BaseService):
         user = User.query.filter_by(email=password_email).first()
         if user:
             url = url_for('password.change_password', token=token, _external=True)
-            html_body = f"<a href='{url}'>Please confirm your email</a>"
+            html_body = f"<a href='{url}'>Please confirm your identity</a>"
 
             mail_configuration.send_email(
-                subject="Please confirm your email",
+                subject="Please confirm your Identity",
                 recipients=[password_email],
-                body="Please confirm your email by clicking the link below.",
+                body="Please confirm your identity and change your password by clicking the link below.",
                 html_body=html_body
             )
 
