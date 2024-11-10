@@ -30,6 +30,6 @@ class MailconfigurationService(BaseService):
         msg = Message(subject, sender=self.sender, recipients=recipients)
         msg.body = body
         if html_body:
-            msg.html = html_body
+            msg.html = msg.html = f"<p>{body}</p>" + html_body
 
         self.mail.send(msg)
