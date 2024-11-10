@@ -1,0 +1,38 @@
+name: Commit Message Linter
+
+on:
+  push:
+    branches:
+      
+      main
+      develop
+      'feature*'
+
+
+jobs:
+  lint-commit-message:
+    runs-on: ubuntu-latest
+
+    steps:
+    
+name: Checkout code
+    uses: actions/checkout@v3
+
+    
+name: Lint commit messages
+    run: |
+      commits=$(git rev-list HEAD^1..HEAD)
+      # Regex para validar el formato del mensaje de commit (scope opcional)
+      regex="^(fix|feat|docs|test)(([a-zA-Z]+))?:\ [A-ZÁÉÍÓÚÜÑa-záéíóúüñ0-9,.'\ ]+$"
+
+        # Verificar cada mensaje de commit
+        for commit in $commits; do
+          message=$(git log --format=%B -n 1 "$commit")
+
+          if ! [[ $message =~ $regex ]]; then
+            echo "El mensaje del commit '$message' no cumple con el formato."
+            exit 1
+          else
+            echo "El mensaje del commit '$message' es válido."
+          fi
+        done
