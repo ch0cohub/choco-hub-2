@@ -1,0 +1,29 @@
+name: Code Quality with Pylint
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  pylint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pylint -r requirements.txt
+
+      - name: Run Pylint
+        run: pylint app/
+        continue-on-error: true
