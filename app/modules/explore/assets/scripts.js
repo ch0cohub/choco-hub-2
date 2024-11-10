@@ -1,14 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
-    send_query();
+    send_query(); // este es el que ya había, para buscar por cosas al clicar en los que están cargados
 });
 
 function send_query() {
 
-    console.log("send query...")
 
     document.getElementById('results').innerHTML = '';
     document.getElementById("results_not_found").style.display = "none";
-    console.log("hide not found icon");
 
     const filters = document.querySelectorAll('#filters input, #filters select, #filters [type="radio"]');
 
@@ -18,12 +16,14 @@ function send_query() {
 
             const searchCriteria = {
                 csrf_token: csrfToken,
-                query: document.querySelector('#query').value,
+                title: document.querySelector('#title').value,
+                tags_str: document.querySelector('#tags_str').value,
                 publication_type: document.querySelector('#publication_type').value,
                 sorting: document.querySelector('[name="sorting"]:checked').value,
+                author_name: document.querySelector('#author_name').value,
             };
 
-            console.log(document.querySelector('#publication_type').value);
+            console.log('criteria: ', searchCriteria);
 
             fetch('/explore', {
                 method: 'POST',
@@ -32,10 +32,12 @@ function send_query() {
                 },
                 body: JSON.stringify(searchCriteria),
             })
-                .then(response => response.json())
+                .then(response => {
+                  return response.json()
+                })
                 .then(data => {
 
-                    console.log(data);
+                    console.log('data', data);
                     document.getElementById('results').innerHTML = '';
 
                     // results counter
@@ -44,13 +46,24 @@ function send_query() {
                     document.getElementById('results_number').textContent = `${resultCount} ${resultText} found`;
 
                     if (resultCount === 0) {
-                        console.log("show not found icon");
                         document.getElementById("results_not_found").style.display = "block";
                     } else {
                         document.getElementById("results_not_found").style.display = "none";
                     }
 
+                    
+                  const downloadButton = document.createElement('button');
+                  downloadButton.className = 'btn btn-outline-primary btn-sm mb-3';
+                  downloadButton.textContent = 'Download All Datasets';
+                  downloadButton.addEventListener('click', () => {
+                    for (let i = 0; i < data.length; i++) {
+                      window.open(`/dataset/download/${data[i].id}`);
+                    }
+                  });
 
+                  document.getElementById('results').insertAdjacentElement('beforebegin', downloadButton);
+                    
+                    
                     data.forEach(dataset => {
                         let card = document.createElement('div');
                         card.className = 'col-12';
@@ -141,12 +154,14 @@ function formatDate(dateString) {
 }
 
 function set_tag_as_query(tagName) {
-    const queryInput = document.getElementById('query');
-    queryInput.value = tagName.trim();
-    queryInput.dispatchEvent(new Event('input', {bubbles: true}));
+    clearFilters()
+    const tagInput = document.getElementById('tags_str');
+    tagInput.value = tagName.trim();
+    tagInput.dispatchEvent(new Event('input', {bubbles: true}));
 }
 
 function set_publication_type_as_query(publicationType) {
+    clearFilters()
     const publicationTypeSelect = document.getElementById('publication_type');
     for (let i = 0; i < publicationTypeSelect.options.length; i++) {
         if (publicationTypeSelect.options[i].text === publicationType.trim()) {
@@ -163,8 +178,8 @@ document.getElementById('clear-filters').addEventListener('click', clearFilters)
 function clearFilters() {
 
     // Reset the search query
-    let queryInput = document.querySelector('#query');
-    queryInput.value = "";
+    let titleInput = document.querySelector('#title');
+    titleInput.value = "";
     // queryInput.dispatchEvent(new Event('input', {bubbles: true}));
 
     // Reset the publication type to its default value
@@ -180,26 +195,25 @@ function clearFilters() {
     });
 
     // Perform a new search with the reset filters
-    queryInput.dispatchEvent(new Event('input', {bubbles: true}));
+    titleInput.dispatchEvent(new Event('input', {bubbles: true}));
 }
 
 document.addEventListener('DOMContentLoaded', () => {
 
     //let queryInput = document.querySelector('#query');
     //queryInput.dispatchEvent(new Event('input', {bubbles: true}));
-
     let urlParams = new URLSearchParams(window.location.search);
-    let queryParam = urlParams.get('query');
+    let titleParam = urlParams.get('query');
 
-    if (queryParam && queryParam.trim() !== '') {
+    if (titleParam && titleParam.trim() !== '') {
 
-        const queryInput = document.getElementById('query');
-        queryInput.value = queryParam
-        queryInput.dispatchEvent(new Event('input', {bubbles: true}));
-        console.log("throw event");
+        const titleInput = document.getElementById('title');
+        titleInput.value = titleParam
+        titleInput.dispatchEvent(new Event('input', {bubbles: true}));
 
     } else {
-        const queryInput = document.getElementById('query');
-        queryInput.dispatchEvent(new Event('input', {bubbles: true}));
+        const titleInput = document.getElementById('title');
+        titleInput.dispatchEvent(new Event('input', {bubbles: true}));
     }
 });
+
