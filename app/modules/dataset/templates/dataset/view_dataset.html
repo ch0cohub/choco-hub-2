@@ -57,17 +57,17 @@
                 </div>
 
                 <div class="row mb-2">
-
                     <div class="col-md-4 col-12">
-                        <span class=" text-secondary">
+                        <span class="text-secondary">
                             Uploaded by
                         </span>
                     </div>
                     <div class="col-md-8 col-12">
-                        <a href="#">{{ dataset.user.profile.surname }}, {{ dataset.user.profile.name }}</a>
+                        <a href="{{ url_for('profile.user_datasets', user_id=dataset.user.id) }}">
+                            {{ dataset.user.profile.surname }}, {{ dataset.user.profile.name }}
+                        </a>
                     </div>
-
-                </div>
+                </div>                
 
                 <div class="row mb-2">
 
