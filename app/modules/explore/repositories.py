@@ -10,7 +10,7 @@ class ExploreRepository(BaseRepository):
     def __init__(self):
         super().__init__(DataSet)
 
-    def filter(self, query="", sorting="newest", publication_type="any", tags=[], **kwargs):
+    def filter(self, query="", sorting="newest", publication_type="any", tags=[], files_count=0, **kwargs):
         # Normalize and remove unwanted characters
         normalized_query = unidecode.unidecode(query).lower()
         cleaned_query = re.sub(r'[,.":\'()\[\]^;!¡¿?]', "", normalized_query)
@@ -38,6 +38,9 @@ class ExploreRepository(BaseRepository):
             .filter(or_(*filters))
             .filter(DSMetaData.dataset_doi.isnot(None))  # Exclude datasets with empty dataset_doi
         )
+
+        if files_count >= 0:
+            datasets = [dataset for dataset in datasets if dataset.get_files_count() >= files_count]
 
         if publication_type != "any":
             matching_type = None

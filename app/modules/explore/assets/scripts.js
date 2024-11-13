@@ -21,6 +21,7 @@ function send_query() {
                 query: document.querySelector('#query').value,
                 publication_type: document.querySelector('#publication_type').value,
                 sorting: document.querySelector('[name="sorting"]:checked').value,
+                files_count: document.querySelector('#files_count').value,
             };
 
             console.log(document.querySelector('#publication_type').value);
@@ -177,6 +178,10 @@ function clearFilters() {
     sortingOptions.forEach(option => {
         option.checked = option.value == "newest"; // replace "default" with whatever your default value is
         // option.dispatchEvent(new Event('input', {bubbles: true}));
+
+    // Reset the files count filter
+    let filesCountSelect = document.querySelector('#files_count');
+    filesCountSelect.value = "";
     });
 
     // Perform a new search with the reset filters
