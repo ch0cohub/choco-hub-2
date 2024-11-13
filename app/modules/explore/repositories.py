@@ -10,25 +10,31 @@ class ExploreRepository(BaseRepository):
     def __init__(self):
         super().__init__(DataSet)
 
-    def filter(self, query="", sorting="newest", publication_type="any", tags=[], **kwargs):
+    def filter(self, search_criteria, **kwargs):
+        title = search_criteria.get('title', None)
+        publication_type = search_criteria.get('publication_type', None)
+        sorting = search_criteria.get('sorting', None)
+        tags_str = search_criteria.get('tags_str', None)
+        tags = [t.strip() for t in tags_str.split(",")]
+        author_name = search_criteria.get('author_name', None)
+
         # Normalize and remove unwanted characters
-        normalized_query = unidecode.unidecode(query).lower()
-        cleaned_query = re.sub(r'[,.":\'()\[\]^;!¡¿?]', "", normalized_query)
+        normalized_title = unidecode.unidecode(title).lower()
+        cleaned_title = re.sub(r'[,.":\'()\[\]^;!¡¿?]', "", normalized_title)
 
         filters = []
-        for word in cleaned_query.split():
+        for word in cleaned_title.split():
             filters.append(DSMetaData.title.ilike(f"%{word}%"))
-            filters.append(DSMetaData.description.ilike(f"%{word}%"))
-            filters.append(Author.name.ilike(f"%{word}%"))
-            filters.append(Author.affiliation.ilike(f"%{word}%"))
-            filters.append(Author.orcid.ilike(f"%{word}%"))
-            filters.append(FMMetaData.uvl_filename.ilike(f"%{word}%"))
-            filters.append(FMMetaData.title.ilike(f"%{word}%"))
-            filters.append(FMMetaData.description.ilike(f"%{word}%"))
-            filters.append(FMMetaData.publication_doi.ilike(f"%{word}%"))
-            filters.append(FMMetaData.tags.ilike(f"%{word}%"))
-            filters.append(DSMetaData.tags.ilike(f"%{word}%"))
-
+            #filters.append(DSMetaData.description.ilike(f"%{word}%"))
+            #filters.append(Author.name.ilike(f"%{word}%"))
+            #filters.append(Author.affiliation.ilike(f"%{word}%"))
+            #filters.append(Author.orcid.ilike(f"%{word}%"))
+            #filters.append(FMMetaData.uvl_filename.ilike(f"%{word}%"))
+            #filters.append(FMMetaData.title.ilike(f"%{word}%"))
+            #filters.append(FMMetaData.description.ilike(f"%{word}%"))
+            #filters.append(FMMetaData.publication_doi.ilike(f"%{word}%"))
+            # filters.append(FMMetaData.tags.ilike(f"%{word}%"))
+            # filters.append(DSMetaData.tags.ilike(f"%{word}%"))
         datasets = (
             self.model.query
             .join(DataSet.ds_meta_data)
@@ -38,7 +44,6 @@ class ExploreRepository(BaseRepository):
             .filter(or_(*filters))
             .filter(DSMetaData.dataset_doi.isnot(None))  # Exclude datasets with empty dataset_doi
         )
-
         if publication_type != "any":
             matching_type = None
             for member in PublicationType:
@@ -48,14 +53,18 @@ class ExploreRepository(BaseRepository):
 
             if matching_type is not None:
                 datasets = datasets.filter(DSMetaData.publication_type == matching_type.name)
-
+        
         if tags:
-            datasets = datasets.filter(DSMetaData.tags.ilike(any_(f"%{tag}%" for tag in tags)))
+            tag_filters = []
+            for tag in tags:
+                tag_filters.append(DSMetaData.tags.ilike(f"%{tag}%"))
+                datasets = datasets.filter(or_(*tag_filters))
 
         # Order by created_at
         if sorting == "oldest":
             datasets = datasets.order_by(self.model.created_at.asc())
         else:
             datasets = datasets.order_by(self.model.created_at.desc())
-
+        if author_name:
+            datasets = datasets.filter(Author.name.ilike(f"%{author_name}%"))
         return datasets.all()
