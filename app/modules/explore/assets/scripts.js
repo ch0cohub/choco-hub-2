@@ -171,6 +171,7 @@ function set_publication_type_as_query(publicationType) {
       // Set the value of the select to the value of the matching option
       publicationTypeSelect.value = publicationTypeSelect.options[i].value;
       break;
+
     }
   }
   publicationTypeSelect.dispatchEvent(new Event('input', { bubbles: true }));
@@ -199,6 +200,7 @@ function clearFilters() {
 
   // Perform a new search with the reset filters
   titleInput.dispatchEvent(new Event('input', { bubbles: true }));
+
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -219,4 +221,5 @@ document.addEventListener('DOMContentLoaded', () => {
     titleInput.dispatchEvent(new Event('input', { bubbles: true }));
   }
 });
+
 

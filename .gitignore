@@ -1,0 +1,9 @@
+.env
+.moduleignore
+app.log
+__pycache__/
+test_file.txt
+uploads/
+venv/
+rosemary.egg-info/
+app.log.*
