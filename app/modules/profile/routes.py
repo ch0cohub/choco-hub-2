@@ -7,6 +7,7 @@ from app import db
 from app.modules.profile import profile_bp
 from app.modules.profile.forms import UserProfileForm
 from app.modules.profile.services import UserProfileService
+from app.modules.profile.models import UserProfile
 
 
 @profile_bp.route("/profile/edit", methods=["GET", "POST"])
@@ -57,7 +58,7 @@ def my_profile():
 @profile_bp.route('/profile/<int:user_id>/datasets')
 @login_required
 def user_datasets(user_id):
-    user = db.session.query(User).filter(User.id == user_id).first()
+    user = db.session.query(UserProfile).filter(UserProfile.id == user_id).first()
     
     if user:
         page = request.args.get('page', 1, type=int)
