@@ -269,18 +269,30 @@
                             </div>
                             <div class="col-12 text-end" >
 
-                                <button onclick="viewFile('{{ file.id }}')" class="btn btn-outline-secondary btn-sm" style="border-radius: 5px;">
-                                    <i data-feather="eye"></i> View
-                                </button>
-
-                                <button class="btn btn-primary dropdown-toggle" type="button" id="viewDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    View
-                                </button>
-                                <div class="dropdown-menu" aria-labelledby="viewDropdown">
-                                <a class="dropdown-item" href="#" onclick="viewFile('{{ file.id }}')">UVL</a>
-                                <a class="dropdown-item" href="#" onclick="viewFileOther('{{ file.id },glencoe}')">Glencoe</a>
-                                <a class="dropdown-item" href="#" onclick="viewFileOther('{{ file.id },dimacs}')">DIMACS</a>
-                                <a class="dropdown-item" href="#" onclick="viewFileOther('{{ file.id },splot}')">SPLOT</a>
+                                <div class="btn-group" role="group">
+                                    <button id="btnGroupDropExport{{ file.id }}" type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style=" border-radius: 5px;">
+                                        <i data-feather="download"></i> View
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="btnGroupDropExport{{ file.id }}">
+                                        <li>
+                                            <a class="dropdown-item" href="#" onclick="viewFile('{{ file.id }}')">
+                                                UVL
+                                            </a>
+                                            <a class="dropdown-item" href="#" onclick="viewFileOther('{{ file.id }}', 'glencoe')">
+                                                Glencoe
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="#" onclick="viewFileOther('{{ file.id }}', 'dimacs')">
+                                                DIMACS
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="#" onclick="viewFileOther('{{ file.id }}', 'splot')">
+                                                SPLOT
+                                            </a>
+                                        </li>
+                                    </ul>
                                 </div>
 
                                 <div class="btn-group" role="group">

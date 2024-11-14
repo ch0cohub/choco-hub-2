@@ -6,6 +6,10 @@ from flask_login import current_user
 from app.modules.hubfile import hubfile_bp
 from app.modules.hubfile.models import HubfileDownloadRecord, HubfileViewRecord
 from app.modules.hubfile.services import HubfileDownloadRecordService, HubfileService
+from flamapy.metamodels.fm_metamodel.transformations import UVLReader, GlencoeWriter, SPLOTWriter
+from flamapy.metamodels.pysat_metamodel.transformations import FmToPysat, DimacsWriter
+import tempfile
+
 
 from app import db
 
@@ -130,6 +134,7 @@ def view_file_other_formats(file_id, format):
             elif format == "splot":
                 content = convert_to_splot(content, file)
 
+
             user_cookie = request.cookies.get('view_cookie')
             if not user_cookie:
                 user_cookie = str(uuid.uuid4())
@@ -153,7 +158,7 @@ def view_file_other_formats(file_id, format):
                 db.session.commit()
 
             # Preparar la respuesta con el contenido transformado
-            response = jsonify({'success': True, 'content': content, 'format': format})
+            response = jsonify({'success': True, 'content': content})
             if not request.cookies.get('view_cookie'):
                 response = make_response(response)
                 response.set_cookie('view_cookie', user_cookie, max_age=60*60*24*365*2)
