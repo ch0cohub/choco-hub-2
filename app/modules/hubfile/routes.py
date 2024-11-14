@@ -116,7 +116,7 @@ def view_file_other_formats(file_id, format):
     file_path = os.path.join(parent_directory_path, directory_path, filename)
 
     # Validar el tipo de formato solicitado
-    if format not in ["glencoe", "dimacs", "splot"]:
+    if format not in ["glencoe", "cnf", "splot"]:
         return jsonify({'success': False, 'error': 'Formato no soportado'}), 400
 
     # Tratar de abrir y leer el archivo del formato adecuado
@@ -129,7 +129,7 @@ def view_file_other_formats(file_id, format):
             # Llamar a la función de conversión dependiendo del formato solicitado
             if format == "glencoe":
                 content = convert_to_glencoe(content, file)
-            elif format == "dimacs":
+            elif format == "cnf":
                 content = convert_to_dimacs(content, file)
             elif format == "splot":
                 content = convert_to_splot(content, file)
