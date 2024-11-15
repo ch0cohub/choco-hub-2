@@ -60,10 +60,19 @@ function send_query() {
           downloadButton.textContent = 'Download All Datasets';
           downloadButton.addEventListener('click', () => {
             for (let i = 0; i < data.length; i++) {
-              window.open(`/dataset/download/${data[i].id}`);
+              const url = `/dataset/download/${data[i].id}`;
+              fetch(url).then(response => response.blob()).then(blob => {
+                const downloadUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = data[i].title + '.zip';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(downloadUrl);
+              });
             }
-          });
-
+          })
           document.getElementById('results').insertAdjacentElement('beforebegin', downloadButton);
 
 
