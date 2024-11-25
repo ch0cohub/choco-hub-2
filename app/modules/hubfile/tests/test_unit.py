@@ -21,16 +21,12 @@ def app():
 def test_total_downloads(test_client):
     with test_client.application.app_context():
         download_service = HubfileService()
-
-        # Comprobar el total de descargas
         total_downloads = download_service.total_hubfile_downloads()
         assert total_downloads >= 0, "Total downloads count is incorrect."
 
 def test_total_views(test_client):
     with test_client.application.app_context():
         hubfile_service = HubfileService()
-
-        # Comprobar el total de vistas
         total_views = hubfile_service.total_hubfile_views()
         assert total_views >= 0, "Total views count is incorrect."
         
