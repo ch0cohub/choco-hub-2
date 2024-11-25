@@ -23,7 +23,6 @@ function send_query() {
         author_name: document.querySelector('#author_name').value,
       };
 
-      console.log('criteria: ', searchCriteria);
 
       fetch('/explore', {
         method: 'POST',
@@ -37,7 +36,6 @@ function send_query() {
         })
         .then(data => {
 
-          console.log('data', data);
           document.getElementById('results').innerHTML = '';
 
           // results counter
@@ -52,7 +50,6 @@ function send_query() {
           }
 
           const existingButtons = document.querySelectorAll('.btn-download-all');
-          console.log('existingButtons', existingButtons);
           existingButtons.forEach(button => button.remove());
 
           const downloadButton = document.createElement('button');
