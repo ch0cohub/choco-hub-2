@@ -1,16 +1,16 @@
 import re
+from app import db
 from sqlalchemy import any_, or_
 import unidecode
-from app.modules.dataset.models import Author, DSMetaData, DataSet, PublicationType
+from app.modules.dataset.models import Author, DSMetaData, DataSet, PublicationType, DSViewRecord, DSDownloadRecord
 from app.modules.featuremodel.models import FMMetaData, FeatureModel
 from core.repositories.BaseRepository import BaseRepository
-
 
 class ExploreRepository(BaseRepository):
     def __init__(self):
         super().__init__(DataSet)
 
-    def filter(self, query="", sorting="newest", publication_type="any", tags=[], files_count=0, **kwargs):
+    def filter(self, query="", sorting="newest", publication_type="any", tags=[], **kwargs):
         # Normalize and remove unwanted characters
         normalized_query = unidecode.unidecode(query).lower()
         cleaned_query = re.sub(r'[,.":\'()\[\]^;!¡¿?]', "", normalized_query)
@@ -39,9 +39,6 @@ class ExploreRepository(BaseRepository):
             .filter(DSMetaData.dataset_doi.isnot(None))  # Exclude datasets with empty dataset_doi
         )
 
-        if files_count >= 0:
-            datasets = [dataset for dataset in datasets if dataset.get_files_count() >= files_count]
-
         if publication_type != "any":
             matching_type = None
             for member in PublicationType:
@@ -55,10 +52,24 @@ class ExploreRepository(BaseRepository):
         if tags:
             datasets = datasets.filter(DSMetaData.tags.ilike(any_(f"%{tag}%" for tag in tags)))
 
-        # Order by created_at
+        # Order by:
         if sorting == "oldest":
             datasets = datasets.order_by(self.model.created_at.asc())
-        else:
+        elif sorting == "newest":
             datasets = datasets.order_by(self.model.created_at.desc())
+        elif sorting == "most views":
+            datasets = (
+                datasets
+                .outerjoin(DSViewRecord, DSViewRecord.dataset_id == self.model.id)  # Relación con DSViewRecord
+                .group_by(self.model.id)  # Agrupar por dataset
+                .order_by((db.func.count(DSViewRecord.id)).desc())  # Ordenar por vistas
+            )
+        elif sorting == "most downloads":
+            datasets = (
+                datasets
+                .outerjoin(DSDownloadRecord, DSDownloadRecord.dataset_id == self.model.id)  # Relación con DSDownloadRecord
+                .group_by(self.model.id)  # Agrupar por dataset
+                .order_by((db.func.count(DSDownloadRecord.id)).desc())  # Ordenar por descargas
+            )
 
         return datasets.all()
