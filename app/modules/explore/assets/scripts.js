@@ -21,6 +21,7 @@ function send_query() {
                 query: document.querySelector('#query').value,
                 publication_type: document.querySelector('#publication_type').value,
                 sorting: document.querySelector('[name="sorting"]:checked').value,
+                uvl_validation: document.querySelector('#uvl_validation').checked,
             };
 
             console.log(document.querySelector('#publication_type').value);
@@ -178,6 +179,10 @@ function clearFilters() {
         option.checked = option.value == "newest"; // replace "default" with whatever your default value is
         // option.dispatchEvent(new Event('input', {bubbles: true}));
     });
+
+    // Reset the UVL validation checkbox
+    let uvlValidationCheckbox = document.querySelector('#uvl_validation');
+    uvlValidationCheckbox.checked = false;
 
     // Perform a new search with the reset filters
     queryInput.dispatchEvent(new Event('input', {bubbles: true}));

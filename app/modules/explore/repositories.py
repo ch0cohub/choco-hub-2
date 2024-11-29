@@ -10,7 +10,7 @@ class ExploreRepository(BaseRepository):
     def __init__(self):
         super().__init__(DataSet)
 
-    def filter(self, query="", sorting="newest", publication_type="any", tags=[], **kwargs):
+    def filter(self, query="", sorting="newest", publication_type="any", tags=[], uvl_validation=False, **kwargs):
         # Normalize and remove unwanted characters
         normalized_query = unidecode.unidecode(query).lower()
         cleaned_query = re.sub(r'[,.":\'()\[\]^;!¡¿?]', "", normalized_query)
@@ -71,5 +71,12 @@ class ExploreRepository(BaseRepository):
                 .group_by(self.model.id)  # Agrupar por dataset
                 .order_by((db.func.count(DSDownloadRecord.id)).desc())  # Ordenar por descargas
             )
+
+        #Comprobar si todos los feature models de un dataset tienen uvl_valid = True
+        if uvl_validation:
+            datasets = datasets.filter(
+            ~DataSet.feature_models.any(FeatureModel.uvl_valid == False)
+            )
+
 
         return datasets.all()
