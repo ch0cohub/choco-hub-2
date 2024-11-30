@@ -6,3 +6,4 @@ test_file.txt
 uploads/
 venv/
 rosemary.egg-info/
+app.log.*
