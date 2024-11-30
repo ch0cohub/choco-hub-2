@@ -7,13 +7,14 @@ from app import db
 from app.modules.profile import profile_bp
 from app.modules.profile.forms import UserProfileForm
 from app.modules.profile.services import UserProfileService
+from app.modules.profile.models import UserProfile
 
 
 @profile_bp.route("/profile/edit", methods=["GET", "POST"])
 @login_required
 def edit_profile():
     auth_service = AuthenticationService()
-    profile = auth_service.get_authenticated_user_profile
+    profile = auth_service.get_authenticated_user_profile()
     if not profile:
         return redirect(url_for("public.index"))
 
@@ -53,3 +54,30 @@ def my_profile():
         pagination=user_datasets_pagination,
         total_datasets=total_datasets_count
     )
+
+@profile_bp.route('/profile/<int:user_id>/datasets')
+@login_required
+def user_datasets(user_id):
+    user = db.session.query(UserProfile).filter(UserProfile.id == user_id).first()
+    
+    if user:
+        page = request.args.get('page', 1, type=int)
+        per_page = 5
+        user_datasets_pagination = db.session.query(DataSet) \
+            .filter(DataSet.user_id == user.id) \
+            .order_by(DataSet.created_at.desc()) \
+            .paginate(page=page, per_page=per_page, error_out=False)
+        
+        total_datasets_count = db.session.query(DataSet) \
+            .filter(DataSet.user_id == user.id) \
+            .count()
+
+        return render_template(
+            'profile/user_datasets.html', 
+            user=user, 
+            datasets=user_datasets_pagination.items, 
+            pagination=user_datasets_pagination,
+            total_datasets=total_datasets_count
+        )
+    else:
+        return redirect(url_for('public.index'))
