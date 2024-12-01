@@ -15,8 +15,8 @@ jobs:
 
     - name: Set up Git
       run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "Pablo-Caballero-Maria"
+        git config --global user.email "pabcabmar3@alum.us.es"
 
     - name: Clone choco2 repository
       env:
