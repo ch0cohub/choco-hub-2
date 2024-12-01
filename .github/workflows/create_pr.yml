@@ -27,7 +27,7 @@ jobs:
 
     - name: Clone choco2 repository
       run: |
-        # clonse with ssh
+        # clone with ssh
         git clone git@github.com:ch0cohub/choco-hub-2.git choco2
         cd choco2
     
