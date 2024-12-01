@@ -25,6 +25,8 @@ jobs:
         git clone https://github.com/ch0cohub/choco-hub-2.git choco2
         cd choco2
     
+        git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/ch0cohub/choco-hub-2.git
+
         git remote add choco1 https://github.com/ch0cohub/choco-hub-1.git
         git fetch choco1 CI_workflow
 
