@@ -44,6 +44,7 @@ jobs:
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v7
       with:
+        token: ${{ secrets.GH_TOKEN }}
         commit-message: Sync from choco1/CI_workflow
         branch: choco1-repo-branch-30-11
         base: main
