@@ -12,8 +12,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
 
     - name: Set up Git
       run: |
@@ -56,6 +54,14 @@ jobs:
    
         echo "\nFinal state of remote branches:"
         git branch -avv
+
+        # Create PR using GitHub CLI
+        gh auth login --with-token <<< "${{ secrets.GH_TOKEN }}"
+        gh pr create \
+          --title "Sync from choco1/CI_workflow" \
+          --body "This PR merges changes from choco1/CI_workflow into choco2/main." \
+          --base main \
+          --head choco1-repo-branch-30-11
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v7
