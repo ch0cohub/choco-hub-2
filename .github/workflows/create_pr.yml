@@ -18,6 +18,13 @@ jobs:
         git config --global user.name "Pablo-Caballero-Maria"
         git config --global user.email "pabcabmar3@alum.us.es"
 
+    - name: Configurar clave SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan github.com >> ~/.ssh/known_hosts
+
     - name: Clone choco2 repository
       run: |
         # clonse with ssh
