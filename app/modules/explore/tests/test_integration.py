@@ -27,7 +27,6 @@ def test_filter_by_dataset_title_positive_integration(test_client):
 
 def test_filter_by_dataset_title_negative_integration(test_client):
     response = test_client.get("/explore?query=nonexistent")
-    print("response data 2: ", response.data)
     assert response.status_code == 200
     assert "We have not found any datasets that meet your search criteria" in response.data.decode("utf-8")
 
