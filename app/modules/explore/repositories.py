@@ -11,6 +11,7 @@ class ExploreRepository(BaseRepository):
         super().__init__(DataSet)
 
     def filter(self, search_criteria, **kwargs):
+        # we have to check existence of keys in the dictionary because in the tests not all of them will be present
         title = search_criteria.get('title', None)
         publication_type = search_criteria.get('publication_type', None)
         sorting = search_criteria.get('sorting', None)
@@ -44,7 +45,7 @@ class ExploreRepository(BaseRepository):
                 if member.value.lower() == publication_type:
                     matching_type = member
                     break
-
+            # we can use "is not None" because in python the "None" is a singleton so there only exists one memory reference to it
             if matching_type is not None:
                 datasets = datasets.filter(DSMetaData.publication_type == matching_type.name)
 
