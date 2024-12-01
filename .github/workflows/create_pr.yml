@@ -12,6 +12,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
     - name: Set up Git
       run: |
@@ -27,11 +29,11 @@ jobs:
 
     - name: Clone choco2 repository
       run: |
+        cd ..
         # clone with ssh
         git clone git@github.com:ch0cohub/choco-hub-2.git choco2
         cd choco2
         git branch -a
-        git fetch origin main 
 
         git remote add choco1 https://github.com/ch0cohub/choco-hub-1.git
         git fetch choco1 CI_workflow
@@ -46,6 +48,7 @@ jobs:
       uses: peter-evans/create-pull-request@v7
       with:
         token: ${{ secrets.GH_TOKEN }}
+        path: ../choco2
         commit-message: Sync from choco1/CI_workflow
         branch: choco1-repo-branch-30-11
         base: main
