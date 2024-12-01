@@ -42,6 +42,8 @@ jobs:
         git log --oneline choco1/CI_workflow -n 5
 
         git checkout -B choco1-repo-branch-30-11
+
+        git pull --no-rebase origin choco1-repo-branch-30-11
         git merge --no-ff --no-edit --allow-unrelated-histories choco1/CI_workflow
         
         echo "\nAfter merge, showing current branch state:"
@@ -51,7 +53,6 @@ jobs:
         git status
 
 
-        git pull --no-rebase origin choco1-repo-branch-30-11
         git push origin choco1-repo-branch-30-11
    
         echo "\nFinal state of remote branches:"
@@ -65,14 +66,3 @@ jobs:
           --base main \
           --head choco1-repo-branch-30-11
 
-    - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v7
-      with:
-        token: ${{ secrets.GH_TOKEN }}
-        path: ../choco2
-        commit-message: Sync from choco1/CI_workflow
-        branch: choco1-repo-branch-30-11
-        base: main
-        title: Sync from choco1/CI_workflow
-        body: |
-          This PR merges changes from choco1/CI_workflow into choco2/main.
