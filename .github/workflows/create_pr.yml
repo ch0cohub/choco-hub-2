@@ -50,6 +50,8 @@ jobs:
         # Show status before push
         git status
 
+
+        git pull --no-rebase origin choco1-repo-branch-30-11
         git push origin choco1-repo-branch-30-11
    
         echo "\nFinal state of remote branches:"
