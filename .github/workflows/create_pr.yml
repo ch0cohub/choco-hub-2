@@ -30,6 +30,7 @@ jobs:
         # clone with ssh
         git clone git@github.com:ch0cohub/choco-hub-2.git choco2
         cd choco2
+        git branch -a
         git fetch origin main 
 
         git remote add choco1 https://github.com/ch0cohub/choco-hub-1.git
@@ -51,5 +52,3 @@ jobs:
         title: Sync from choco1/CI_workflow
         body: |
           This PR merges changes from choco1/CI_workflow into choco2/main.
-        head-repository: ch0cohub/choco-hub-2
-        base-repository: ch0cohub/choco-hub-2
