@@ -1,9 +1,9 @@
 name: Open Pull Request in Choco2
 
 on:
-  push:
+  merge:
     branches:
-      - CI_workflow
+      - develop
 
 jobs:
   create-pr:
