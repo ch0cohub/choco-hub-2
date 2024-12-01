@@ -19,13 +19,11 @@ jobs:
         git config --global user.email "pabcabmar3@alum.us.es"
 
     - name: Clone choco2 repository
-      env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
-        git clone https://github.com/ch0cohub/choco-hub-2.git choco2
+        # clonse with ssh
+        git clone git@github.com:ch0cohub/choco-hub-2.git choco2
         cd choco2
     
-        git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/ch0cohub/choco-hub-2.git
 
         git remote add choco1 https://github.com/ch0cohub/choco-hub-1.git
         git fetch choco1 CI_workflow
@@ -38,7 +36,6 @@ jobs:
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v7
       with:
-        token: ${{ secrets.GH_TOKEN }}
         commit-message: Sync from choco1/CI_workflow
         branch: choco1-repo-branch-30-11
         base: main
