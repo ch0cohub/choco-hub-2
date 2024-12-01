@@ -32,8 +32,8 @@ jobs:
         git merge --no-ff --no-edit --allow-unrelated-histories choco1/CI_workflow
 
         git push origin choco1-repo-branch-30-11
-
-    - name: Create Pull Request
+   
+   - name: Create Pull Request
       uses: peter-evans/create-pull-request@v7
       with:
         token: ${{ secrets.GH_TOKEN }}
