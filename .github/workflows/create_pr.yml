@@ -38,6 +38,7 @@ jobs:
         git checkout -B choco1-repo-branch-30-11
         git merge --no-ff --no-edit --allow-unrelated-histories choco1/CI_workflow
 
+        git pull origin choco1-repo-branch-30-11
         git push origin choco1-repo-branch-30-11
    
     - name: Create Pull Request
