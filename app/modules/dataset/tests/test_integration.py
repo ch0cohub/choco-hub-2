@@ -4,6 +4,8 @@ from app.modules.conftest import login, logout
 from app.modules.auth.models import User
 from app.modules.dataset.services import DataSetService
 from flask_login import current_user
+from app.modules.profile.models import UserProfile
+
 
 @pytest.fixture(scope="module")
 def test_client(test_client):
@@ -12,10 +14,13 @@ def test_client(test_client):
     """
     with test_client.application.app_context():
         user_test = User(email='user@example.com', password='test1234')
+        UserProfile(name="Name", surname="Surname", is_verified=True, user=user_test)
+
         db.session.add(user_test)
         db.session.commit()
 
     yield test_client
+
 
 def test_dataset_list(test_client):
     """
@@ -29,6 +34,7 @@ def test_dataset_list(test_client):
     assert b"Datasets" in response.data or b"No datasets" in response.data, "The expected content is not present on the page."
 
     logout(test_client)
+    
 
 def test_dataset_upload_bad_request(test_client):
     """

@@ -67,6 +67,14 @@ class DSViewRecordRepository(BaseRepository):
 class DataSetRepository(BaseRepository):
     def __init__(self):
         super().__init__(DataSet)
+        
+    def get_dataset_name(self, dataset_id: int) -> str:
+        dataset = self.model.query.get(dataset_id)
+        return dataset.ds_meta_data.title if dataset else f"dataset:{dataset_id}"
+        
+    def is_synchronized(self, dataset_id: int) -> bool:
+        dataset = self.model.query.join(DSMetaData).filter(self.model.id == dataset_id).first()
+        return bool(dataset and dataset.ds_meta_data.dataset_doi)
 
     def get_synchronized(self, current_user_id: int) -> DataSet:
         return (

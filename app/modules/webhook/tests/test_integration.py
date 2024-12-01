@@ -15,6 +15,7 @@ def app():
     with app.app_context(), app.test_request_context():
         yield app
 
+
 @pytest.fixture(scope='module')
 def test_client(app):
     return app.test_client()

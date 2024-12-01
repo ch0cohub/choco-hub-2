@@ -57,17 +57,17 @@
                 </div>
 
                 <div class="row mb-2">
+
                     <div class="col-md-4 col-12">
-                        <span class="text-secondary">
+                        <span class=" text-secondary">
                             Uploaded by
                         </span>
                     </div>
                     <div class="col-md-8 col-12">
-                        <a href="{{ url_for('profile.user_datasets', user_id=dataset.user.id) }}">
-                            {{ dataset.user.profile.surname }}, {{ dataset.user.profile.name }}
-                        </a>
+                        <a href="#">{{ dataset.user.profile.surname }}, {{ dataset.user.profile.name }}</a>
                     </div>
-                </div>                
+
+                </div>
 
                 <div class="row mb-2">
 
@@ -269,31 +269,9 @@
                             </div>
                             <div class="col-12 text-end" >
 
-                                <div class="btn-group" role="group">
-                                    <button id="btnGroupDropExport{{ file.id }}" type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style=" border-radius: 5px;">
-                                        <i data-feather="download"></i> View
-                                    </button>
-                                    <ul class="dropdown-menu" aria-labelledby="btnGroupDropExport{{ file.id }}">
-                                        <li>
-                                            <a class="dropdown-item" href="#" onclick="viewFile('{{ file.id }}')">
-                                                UVL
-                                            </a>
-                                            <a class="dropdown-item" href="#" onclick="viewFileOther('{{ file.id }}', 'glencoe')">
-                                                Glencoe
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="#" onclick="viewFileOther('{{ file.id }}', 'cnf')">
-                                                DIMACS
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="#" onclick="viewFileOther('{{ file.id }}', 'splot')">
-                                                SPLOT
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
+                                <button onclick="viewFile('{{ file.id }}')" class="btn btn-outline-secondary btn-sm" style="border-radius: 5px;">
+                                    <i data-feather="eye"></i> View
+                                </button>
 
                                 <div class="btn-group" role="group">
                                     <button id="btnGroupDrop{{ file.id }}" type="button" class="btn btn-outline-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style=" border-radius: 5px;">
@@ -348,10 +326,35 @@
         
         
     
-        <a href="/dataset/download/{{ dataset.id }}" class="btn btn-primary mt-3" style="border-radius: 5px;">
-            <i data-feather="download" class="center-button-icon"></i>
-            Download all ({{ dataset.get_file_total_size_for_human() }})
-        </a>
+        <div class="btn-group" role="group">
+            <button id="btnGroupDropExportFolder" type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 5px;">
+                <i data-feather="download"></i> Download All ({{dataset.get_file_total_size_for_human()}})
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="btnGroupDropExportFolder">
+                
+                <li>
+                    <a class="dropdown-item" href="{{ url_for('dataset.download_dataset', dataset_id=dataset.id) }}">
+                        UVL 
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{{ url_for('flamapy.download_glencoe_dataset', dataset_id=dataset.id) }}">
+                        GLENCOE 
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{{ url_for('flamapy.download_dimacs_dataset', dataset_id=dataset.id) }}">
+                        DIMACS 
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{{ url_for('flamapy.download_splot_dataset', dataset_id=dataset.id) }}">
+                        SPLOT 
+                    </a>
+                </li>
+            </ul>
+        </div>
+
     </div>
     
 </div>
@@ -400,19 +403,6 @@
                 document.getElementById('fileContent').textContent = data.content;
                 currentFileId = fileId;
                 document.getElementById('downloadButton').href = `/file/download/${fileId}`;
-                var modal = new bootstrap.Modal(document.getElementById('fileViewerModal'));
-                modal.show();
-            })
-            .catch(error => console.error('Error loading file:', error));
-    }
-
-    function viewFileOther(fileId,format) {
-        fetch(`/file/view_other/${fileId}/${format}`)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('fileContent').textContent = data.content;
-                currentFileId = fileId;
-                document.getElementById('downloadButton').href = `/flamapy/to_${format}/${fileId}`;
                 var modal = new bootstrap.Modal(document.getElementById('fileViewerModal'));
                 modal.show();
             })
