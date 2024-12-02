@@ -22,6 +22,7 @@ function send_query() {
                 publication_type: document.querySelector('#publication_type').value,
                 sorting: document.querySelector('[name="sorting"]:checked').value,
                 uvl_validation: document.querySelector('#uvl_validation').checked,
+                num_authors: document.querySelector('#num_authors').value
             };
 
             console.log(document.querySelector('#publication_type').value);
@@ -183,6 +184,10 @@ function clearFilters() {
     // Reset the UVL validation checkbox
     let uvlValidationCheckbox = document.querySelector('#uvl_validation');
     uvlValidationCheckbox.checked = false;
+
+    // Reset the num authors input
+    let numAuthorsInput = document.querySelector('#num_authors');
+    numAuthorsInput.value = "any";
 
     // Perform a new search with the reset filters
     queryInput.dispatchEvent(new Event('input', {bubbles: true}));

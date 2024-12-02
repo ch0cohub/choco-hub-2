@@ -1,6 +1,6 @@
 import re
 from app import db
-from sqlalchemy import any_, or_
+from sqlalchemy import any_, func, or_
 import unidecode
 from app.modules.dataset.models import Author, DSMetaData, DataSet, PublicationType, DSViewRecord, DSDownloadRecord
 from app.modules.featuremodel.models import FMMetaData, FeatureModel
@@ -10,7 +10,7 @@ class ExploreRepository(BaseRepository):
     def __init__(self):
         super().__init__(DataSet)
 
-    def filter(self, query="", sorting="newest", publication_type="any", tags=[], uvl_validation=False, **kwargs):
+    def filter(self, query="", sorting="newest", publication_type="any", tags=[], uvl_validation=False, num_authors="any", **kwargs):
         # Normalize and remove unwanted characters
         normalized_query = unidecode.unidecode(query).lower()
         cleaned_query = re.sub(r'[,.":\'()\[\]^;!¡¿?]', "", normalized_query)
@@ -78,5 +78,24 @@ class ExploreRepository(BaseRepository):
             ~DataSet.feature_models.any(FeatureModel.uvl_valid == False)
             )
 
+        if num_authors != "any":
+            author_count_subquery = (
+                db.session.query(
+                    DSMetaData.id,
+                    func.count(Author.id).label('author_count')
+                )
+                .join(DSMetaData.authors)
+                .group_by(DSMetaData.id)
+                .subquery()
+            )
+
+            datasets = datasets.join(author_count_subquery, author_count_subquery.c.id == DSMetaData.id)
+
+            if num_authors == "1":
+                datasets = datasets.filter(author_count_subquery.c.author_count == 1)
+            elif num_authors == "2-3":
+                datasets = datasets.filter(author_count_subquery.c.author_count.between(2, 3))
+            elif num_authors == "4+":
+                datasets = datasets.filter(author_count_subquery.c.author_count >= 4)
 
         return datasets.all()
