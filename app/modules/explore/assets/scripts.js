@@ -56,6 +56,7 @@ function send_query() {
           downloadButton.className = 'btn btn-outline-primary btn-sm mb-3 btn-download-all';
           downloadButton.textContent = 'Download All Datasets';
           downloadButton.addEventListener('click', () => {
+            // para descargar los datasets, se hace un fetch a la ruta de descarga de cada dataset, se crea un elemento html <a> con el link de descarga y se hace click en él, y finalmente se elimina el elemento
             for (let i = 0; i < data.length; i++) {
               const url = `/dataset/download/${data[i].id}`;
               fetch(url).then(response => response.blob()).then(blob => {
