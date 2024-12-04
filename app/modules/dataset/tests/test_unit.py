@@ -1,7 +1,9 @@
 import pytest
 from app import create_app
 from app.modules.dataset.services import DataSetService
-
+from pathlib import Path
+import zipfile
+from datetime import datetime
 
 @pytest.fixture(scope="module")
 def app():
@@ -55,3 +57,27 @@ def test_get_unsynchronized(dataset_service):
 def test_total_dataset_downloads(dataset_service):
     total_downloads = dataset_service.total_dataset_downloads()
     assert isinstance(total_downloads, int)
+    
+    
+def test_get_synchronized_datasets(dataset_service):
+    datasets = dataset_service.get_synchronized_datasets()
+    assert len(datasets) == 4
+    
+    
+def test_generate_datasets_and_name_zip(dataset_service):
+    
+    zip_path, zip_filename = dataset_service.generate_datasets_and_name_zip()
+    with zipfile.ZipFile(zip_path, "r") as zipf:
+        zip_content = zipf.namelist()
+        
+    today_date = datetime.now().strftime("%d_%m_%Y")
+    expected_filename = f"chocohub2_datasets_from_{today_date}.zip"
+    assert zip_filename == expected_filename, (
+        f"El nombre del archivo es incorrecto. "
+        f"Esperado: {expected_filename}, Encontrado: {zip_filename}"
+    )
+        
+    assert Path(zip_path).exists()
+    assert zip_filename.endswith(".zip")
+    assert len(zip_content) == 12
+    Path(zip_path).unlink()
