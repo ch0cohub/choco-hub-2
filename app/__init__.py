@@ -11,6 +11,10 @@ from core.managers.module_manager import ModuleManager
 from core.managers.config_manager import ConfigManager
 from core.managers.error_handler_manager import ErrorHandlerManager
 from core.managers.logging_manager import LoggingManager
+from app.modules.mailconfiguration.services import MailconfigurationService
+from app.modules.webhook import webhook_bp
+from app.modules.webhook import register_routes_webhook  # Asegúrate de importar esta función
+from app.modules.hubfile import register_routes_hubfile
 
 # Load environment variables
 load_dotenv()
@@ -18,10 +22,14 @@ load_dotenv()
 # Create the instances
 db = SQLAlchemy()
 migrate = Migrate()
+mail_configuration = MailconfigurationService()
 
 
 def create_app(config_name='development'):
     app = Flask(__name__)
+    register_routes_webhook()
+    register_routes_hubfile()
+    app.register_blueprint(webhook_bp, url_prefix='/webhook')
 
     # Load configuration according to environment
     config_manager = ConfigManager(app)
@@ -63,7 +71,9 @@ def create_app(config_name='development'):
             'DOMAIN': os.getenv('DOMAIN', 'localhost'),
             'APP_VERSION': get_app_version()
         }
-
+        
+    mail_configuration.init_app(app)
+    
     return app
 
 
