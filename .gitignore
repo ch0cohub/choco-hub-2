@@ -7,3 +7,4 @@ uploads/
 venv/
 rosemary.egg-info/
 app.log.*
+core/selenium/common.py
