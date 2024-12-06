@@ -1,5 +1,3 @@
-from app.modules.explore.services import ExploreService
-from app.modules.explore.repositories import ExploreRepository
 from app.modules.dataset.models import DataSet
 from app.modules.dataset.seeders import DataSetSeeder
 from app.modules.auth.seeders import AuthSeeder
