@@ -191,18 +191,15 @@ function clearFilters() {
   // Reset the search query
   let titleInput = document.querySelector('#title');
   titleInput.value = "";
-  // queryInput.dispatchEvent(new Event('input', {bubbles: true}));
 
   // Reset the publication type to its default value
   let publicationTypeSelect = document.querySelector('#publication_type');
   publicationTypeSelect.value = "any"; // replace "any" with whatever your default value is
-  // publicationTypeSelect.dispatchEvent(new Event('input', {bubbles: true}));
 
   // Reset the sorting option
   let sortingOptions = document.querySelectorAll('[name="sorting"]');
   sortingOptions.forEach(option => {
     option.checked = option.value == "newest"; // replace "default" with whatever your default value is
-    // option.dispatchEvent(new Event('input', {bubbles: true}));
   });
 
   // Perform a new search with the reset filters
@@ -212,8 +209,6 @@ function clearFilters() {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  //let queryInput = document.querySelector('#query');
-  //queryInput.dispatchEvent(new Event('input', {bubbles: true}));
   let urlParams = new URLSearchParams(window.location.search);
   let titleParam = urlParams.get('query');
 
