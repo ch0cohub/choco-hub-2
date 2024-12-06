@@ -3,24 +3,20 @@ from app import create_app
 from app.modules.dataset.services import DataSetService
 
 
-@pytest.fixture(scope="module")
-def app():
-    app = create_app()
-    with app.app_context():
-        yield app
-        
-        
-@pytest.fixture(scope="module")
-def dataset_service(app):
-    service = DataSetService()
-    return service
-
 
 @pytest.fixture(scope="module")
 def test_client(test_client):
     with test_client.application.app_context():
         pass
-    yield test_client
+    yield test_client      
+        
+@pytest.fixture(scope="module")
+def dataset_service(test_client):
+    service = DataSetService()
+    return service
+
+
+
     
     
 def test_should_insert_author(dataset_service):
