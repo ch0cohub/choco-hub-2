@@ -11,6 +11,15 @@ class DatasetBehavior(TaskSet):
     def dataset(self):
         response = self.client.get("/dataset/upload")
         get_csrf_token(response)
+        
+    @task
+    def download_all(self):
+        with self.client.get("/dataset/download/all", stream=True) as response:
+
+            if response.status_code == 200:
+                print(f"Archivo descargado exitosamente: {response.status_code}")
+            else:
+                print(f"Error al descargar archivo: {response.status_code}")
 
 
 class DatasetUser(HttpUser):
