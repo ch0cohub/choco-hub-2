@@ -10,7 +10,7 @@ from app.modules.profile.models import UserProfile
 def test_client(test_client):
     """
     Extends the test_client fixture to add additional specific data for module testing.
-    for module testing (por example, new users)
+    for module testing (por ejemplo, nuevos usuarios).
     """
     with test_client.application.app_context():
         user_test = User(email='user@example.com', password='test1234')
@@ -22,6 +22,8 @@ def test_client(test_client):
         db.session.commit()
 
     yield test_client
+
+
 
 
 def test_edit_post(test_client):
@@ -38,7 +40,7 @@ def test_edit_post(test_client):
     
     
 def test_edit_post_wrong_orcid(test_client):
-    #otro error en el test, el orcid no tiene el formato correcto y pasa con 200
+    # Otro error en el test, el ORCID no tiene el formato correcto y pasa con 200
     login_response = login(test_client, "user@example.com", "test1234")
     assert login_response.status_code == 200, "Login was unsuccessful."
     response = test_client.post(
@@ -52,7 +54,7 @@ def test_edit_post_wrong_orcid(test_client):
     
     
 def test_edit_post_wrong_length(test_client):
-    #otro error en el test, la validacion de longitud en bakcend no esta funcionando
+    # Otro error en el test, la validación de longitud en el backend no está funcionando
     login_response = login(test_client, "user@example.com", "test1234")
     assert login_response.status_code == 200, "Login was unsuccessful."
     response = test_client.post(
@@ -63,5 +65,4 @@ def test_edit_post_wrong_length(test_client):
                   , affiliation="Affiliation")
         , follow_redirects=True)
     assert response.status_code == 200
-
 
