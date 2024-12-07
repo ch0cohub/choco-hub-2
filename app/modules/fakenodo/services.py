@@ -49,7 +49,7 @@ class FakenodoService(BaseService):
         }
 
         try:
-            deposition = self.deposition_repository.create_new_deposition(dep_metadata=metadataJSON)
+            deposition = self.deposition_repository.create_new_deposition(metadata=metadataJSON)
 
             return {
                 "id": deposition.id,

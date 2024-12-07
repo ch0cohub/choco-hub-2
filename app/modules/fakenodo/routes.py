@@ -4,6 +4,7 @@ import tempfile
 import os
 
 datasets = {}
+dataset_counter = 0
 
 
 @fakenodo_bp.route('/fakenodo/datasets', methods=['GET'])
@@ -20,13 +21,14 @@ def get_dataset(dataset_id):
         return send_file(
             dataset['file_path'], 
             as_attachment=True, 
-            attachment_filename=dataset['filename']
+        
         )
     return jsonify({'error': f'Dataset with ID {dataset_id} not found'}), 404
 
 
 @fakenodo_bp.route('/fakenodo/upload', methods=['POST'])
 def upload_dataset():
+    
     global dataset_counter
     
     uploaded_file = request.files.get('file')
