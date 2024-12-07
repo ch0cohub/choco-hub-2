@@ -46,6 +46,26 @@ def test_login_unsuccessful_bad_email(test_client):
     assert response.request.path == url_for("auth.login"), "Login was unsuccessful"
 
     test_client.get("/logout", follow_redirects=True)
+    
+    
+def test_login_unsuccessful_not_verified(test_client):
+    with test_client.application.app_context():
+        # Add HERE new elements to the database that you want to exist in the test context.
+        # DO NOT FORGET to use db.session.add(<element>) and db.session.commit() to save the data.
+        user_test2 = User(email="userNotVerified@example.com", password="test1234")
+
+        UserProfile(name="Name", surname="Surname", is_verified=False, user=user_test2)
+
+        db.session.add(user_test2)
+        db.session.commit()
+    
+    response = test_client.post(
+        "/login", data=dict(email="userNotVerified@example.com", password="test1234"), follow_redirects=True
+    )
+
+    assert response.request.path == url_for("auth.login"), "Login was unsuccessful"
+
+    test_client.get("/logout", follow_redirects=True)
 
 
 def test_login_unsuccessful_bad_password(test_client):
@@ -127,6 +147,7 @@ def test_service_create_with_profile_fail_no_password(clean_database):
     assert UserRepository().count() == 0
     assert UserProfileRepository().count() == 0
     
+
 def test_service_create_with_profile_template_injection(clean_database):
     data = {
         # This is a template injection attack, if it is not caught, it will evaluate the expression.
