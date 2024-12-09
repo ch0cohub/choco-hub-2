@@ -14,6 +14,9 @@ def test_client(test_client):
         dataset_seeder.run()
     yield test_client
 
+# in the database, after seeding, there are 4 datasets with title containing "sample" and 4 datasets with tags "tag1,tag2".
+# thats why if we search for "sample" we should get 4 results and if we search for "tag1,tag2" we should get 4 results.
+# if we search for "abcd" we should get 0 results and if we search for "tag3" we should get 0 results.
 def test_filter_by_dataset_title_positive_service(test_client):
     search_criteria = {
         "title": "sample"
