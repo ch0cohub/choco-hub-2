@@ -33,14 +33,44 @@
                                 <td>{{ dataset.ds_meta_data.publication_type.name.replace('_', ' ').title() }}</td>
                                 <td><a href="{{ dataset.get_uvlhub_doi() }}"
                                        target="_blank">{{ dataset.get_uvlhub_doi() }}</a></td>
-                                <td>
-                                    <a href="{{ dataset.get_uvlhub_doi() }}">
-                                        <i data-feather="eye"></i>
-                                    </a>
-                                    <a href="{{ url_for('dataset.download_dataset', dataset_id=dataset.id) }}">
-                                        <i data-feather="download"></i>
-                                    </a>
-                                </td>
+                                       <td>
+                                        <div class="dropdown d-inline-block align-middle">
+                                            <button class="btn btn-link dropdown-toggle" type="button" id="communityDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i data-feather="globe"></i>
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="communityDropdown">
+                                                {% for community in communities %}
+                                                    <li>
+                                                        <a class="dropdown-item {% if dataset.community_id == community.id %}active{% endif %}" 
+                                                           href="#" 
+                                                           onclick="updateDatasetCommunity('{{ dataset.id }}', '{{ community.id }}')">
+                                                            {{ community.name }}
+                                                            {% if dataset.community_id == community.id %}
+                                                                <i class="ms-2" data-feather="check"></i> <!-- Icono para indicar asociación -->
+                                                                <button class="btn btn-danger btn-sm ms-2" 
+                                                                    onclick="removeDatasetCommunity('{{ dataset.id }}', '{{ community.id }}')">
+                                                                    Remove
+                                                                </button>
+                                                            {% endif %}
+                                                        </a>
+                                                    </li>
+                                                {% endfor %}
+                                                {% if not communities %}
+                                                    <li><span class="dropdown-item">No communities</span></li>
+                                                {% endif %}
+                                            </ul>
+                                        </div>
+                                        
+                                        
+                                        
+                                        <a href="{{ dataset.get_uvlhub_doi() }}">
+                                            <i data-feather="eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('dataset.download_dataset', dataset_id=dataset.id) }}">
+                                            <i data-feather="download"></i>
+                                        </a>
+                                    </td>
+                                    
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -115,4 +145,51 @@
             {% endif %}
         </div>
 
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        function updateDatasetCommunity(datasetId, communityId) {
+            fetch('/dataset/update_community', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ dataset_id: datasetId, community_id: communityId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                } else {
+                    alert('Dataset successfully updated!');
+                    // Opcional: recargar la página o actualizar la UI
+                    location.reload();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function removeDatasetCommunity(datasetId, communityId) {
+            if (confirm("Are you sure you want to remove the community association?")) {
+                fetch('/dataset/remove_community', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ dataset_id: datasetId, community_id: communityId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('Error: ' + data.error);
+                    } else {
+                        alert('Community association removed successfully!');
+                        location.reload();  
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
+        }
+    </script>
 {% endblock %}

@@ -1,0 +1,107 @@
+{% extends "base_template.html" %}
+
+{% block title %}View community{% endblock %}
+
+{% block content %}
+<div>
+    {% if current_user.is_authenticated %}
+    <a href="{{ url_for('community.create_community') }}" class="btn btn-primary mb-4">Create Community</a> <!-- Añadido mb-4 -->
+    {% endif %}
+</div>
+
+{% if communities %}
+    <div class="row">
+        {% for community in communities %}
+        <div class="col-12 col-md-4 mb-4"> <!-- Usamos col-12 para que ocupe todo en móviles -->
+            <a href="{{ url_for('community.get_community', community_id=community.id) }}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm border-light">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ community.name }}</h5>
+                        <p class="card-text">{{ community.description }}</p>
+                    </div>
+                    {% if current_user.is_authenticated and community.owner_id == current_user.id %}
+                    <div class="card-footer text-end">
+                        <form action="{{ url_for('community.delete_community', community_id=community.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                        <form action="{{ url_for('community.edit_community', community_id=community.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-warning btn-sm">Edit</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                    {% if community.owner_id != current_user.id and current_user.is_authenticated%}
+                        {% if current_user in community.members %}
+                            <!-- Botón para dejar de seguir la comunidad -->
+                            <div class="card-footer text-end">
+                                <button class="btn btn-danger btn-sm" 
+                                        onclick="leaveCommunity('{{ community.id }}')">Leave Community</button>
+                            </div>
+                        {% else %}
+                            <!-- Botón para unirse a la comunidad -->
+                            <div class="card-footer text-end">
+                                <button class="btn btn-primary btn-sm" 
+                                        onclick="joinCommunity('{{ community.id }}')">Join Community</button>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+<p class="text-center" style="font-size: 1.5em;">
+    You have no communities.
+</p>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('community.scripts') }}"></script>
+
+    <script>
+        function joinCommunity(communityId) {
+            fetch('/community/join', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ community_id: communityId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                } else {
+                    alert('You have successfully joined the community!');
+                    location.reload(); 
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function leaveCommunity(communityId) {
+    if (confirm("Are you sure you want to leave this community?")) {
+        fetch('/community/leave', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ community_id: communityId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Error: ' + data.error);
+            } else {
+                alert('You have successfully left the community!');
+                location.reload(); 
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+}
+
+    </script>
+{% endblock %}
