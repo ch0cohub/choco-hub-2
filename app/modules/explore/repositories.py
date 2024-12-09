@@ -10,24 +10,25 @@ class ExploreRepository(BaseRepository):
     def __init__(self):
         super().__init__(DataSet)
 
-    def filter(self, query="", sorting="newest", publication_type="any", tags=[], uvl_validation=False, num_authors="any", **kwargs):
-        # Normalize and remove unwanted characters
-        normalized_query = unidecode.unidecode(query).lower()
-        cleaned_query = re.sub(r'[,.":\'()\[\]^;!¡¿?]', "", normalized_query)
+    def filter(self, search_criteria, **kwargs):
+        # we have to check existence of keys in the dictionary because in the tests not all of them will be present
+        title = search_criteria.get('title', None)
+        publication_type = search_criteria.get('publication_type', None)
+        sorting = search_criteria.get('sorting', None)
+        uvl_validation = search_criteria.get('uvl_validation', None)
+        num_authors = search_criteria.get('num_authors', None)
+        tags_str = search_criteria.get('tags_str', None)
+        tags = [t.strip() for t in tags_str.split(",")] if tags_str else None
+        author_name = search_criteria.get('author_name', None)
 
+        # Normalize and remove unwanted characters
+        normalized_title = unidecode.unidecode(title).lower() if title else None
+        cleaned_title = re.sub(r'[,.":\'()\[\]^;!¡¿?]', "", normalized_title) if normalized_title else None
         filters = []
-        for word in cleaned_query.split():
-            filters.append(DSMetaData.title.ilike(f"%{word}%"))
-            filters.append(DSMetaData.description.ilike(f"%{word}%"))
-            filters.append(Author.name.ilike(f"%{word}%"))
-            filters.append(Author.affiliation.ilike(f"%{word}%"))
-            filters.append(Author.orcid.ilike(f"%{word}%"))
-            filters.append(FMMetaData.uvl_filename.ilike(f"%{word}%"))
-            filters.append(FMMetaData.title.ilike(f"%{word}%"))
-            filters.append(FMMetaData.description.ilike(f"%{word}%"))
-            filters.append(FMMetaData.publication_doi.ilike(f"%{word}%"))
-            filters.append(FMMetaData.tags.ilike(f"%{word}%"))
-            filters.append(DSMetaData.tags.ilike(f"%{word}%"))
+        if cleaned_title:
+            for word in cleaned_title.split():
+                filters.append(DSMetaData.title.ilike(f"%{word}%"))
+
 
         datasets = (
             self.model.query
@@ -39,23 +40,27 @@ class ExploreRepository(BaseRepository):
             .filter(DSMetaData.dataset_doi.isnot(None))  # Exclude datasets with empty dataset_doi
         )
 
-        if publication_type != "any":
+
+        if publication_type and publication_type != "any":
             matching_type = None
             for member in PublicationType:
                 if member.value.lower() == publication_type:
                     matching_type = member
                     break
-
+            # we can use "is not None" because in python the "None" is a singleton so there only exists one memory reference to it
             if matching_type is not None:
                 datasets = datasets.filter(DSMetaData.publication_type == matching_type.name)
 
         if tags:
-            datasets = datasets.filter(DSMetaData.tags.ilike(any_(f"%{tag}%" for tag in tags)))
+            tag_filters = []
+            for tag in tags:
+                tag_filters.append(DSMetaData.tags.ilike(f"%{tag}%"))
+                datasets = datasets.filter(or_(*tag_filters))
 
-        # Order by:
-        if sorting == "oldest":
+        # Order by created_at
+        if sorting and sorting == "oldest":
             datasets = datasets.order_by(self.model.created_at.asc())
-        elif sorting == "newest":
+        elif sorting:
             datasets = datasets.order_by(self.model.created_at.desc())
         elif sorting == "most views":
             datasets = (
@@ -98,4 +103,6 @@ class ExploreRepository(BaseRepository):
             elif num_authors == "4+":
                 datasets = datasets.filter(author_count_subquery.c.author_count >= 4)
 
+        if author_name:
+            datasets = datasets.filter(Author.name.ilike(f"%{author_name}%"))
         return datasets.all()

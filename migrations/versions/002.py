@@ -1,6 +1,6 @@
-"""empty message
+"""second migration
 
-Revision ID: 16f3920c7e24
+Revision ID: 002
 Revises: 001
 Create Date: 2024-11-02 12:28:46.607497
 
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = '16f3920c7e24'
+revision = '002'
 down_revision = '001'
 branch_labels = None
 depends_on = None

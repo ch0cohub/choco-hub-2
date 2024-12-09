@@ -25,7 +25,8 @@ mail_configuration = MailconfigurationService()
 
 def create_app(config_name='development'):
     app = Flask(__name__)
-    
+
+
     # Load configuration according to environment
     config_manager = ConfigManager(app)
     config_manager.load_config(config_name=config_name)

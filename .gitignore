@@ -5,6 +5,8 @@ uploads/
 app.log
 .DS_Store
 rosemary.egg-info/
+app.log.*
+core/selenium/common.py
 build/
 .coverage
 htmlcov/
@@ -20,3 +22,4 @@ test_file.txt
 chocohub/
 chocohub_env/
 chocohub2_venv/
+app.log.*
