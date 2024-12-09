@@ -19,7 +19,7 @@ def test_client(test_client):
 def test_filter_by_dataset_title_positive_integration(test_client):
     response = test_client.get("/explore?query=sample")
     # test_client.get llama al html, pero no ejecuta el javascript y por ende el service y el repository
-    # no son llamados
+    # no son llamados, por lo que no se ejecuta la query a la base de datos
     datasets = DataSet.query.all()
     assert response.status_code == 200
     assert "We have not found any datasets that meet your search criteria" in response.data.decode("utf-8")
