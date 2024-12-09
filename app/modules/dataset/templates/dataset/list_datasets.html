@@ -34,12 +34,31 @@
                                 <td><a href="{{ dataset.get_uvlhub_doi() }}"
                                        target="_blank">{{ dataset.get_uvlhub_doi() }}</a></td>
                                 <td>
+                                    <div class="dropdown d-inline-block align-middle">
+                                        <button class="btn btn-link dropdown-toggle" type="button" id="communityDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i data-feather="globe"></i>
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="communityDropdown">
+                                            {% for community in current_user.owned_communities %}
+                                                <li>
+                                                    <a class="dropdown-item" href="{{ url_for('community.get_community', community_id=community.id) }}">
+                                                        {{ community.name }}
+                                                    </a>
+                                                </li>
+                                            {% endfor %}
+                                            {% if not (current_user.owned_communities) %}
+                                                <li><span class="dropdown-item">No communities</span></li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+
                                     <a href="{{ dataset.get_uvlhub_doi() }}">
                                         <i data-feather="eye"></i>
                                     </a>
                                     <a href="{{ url_for('dataset.download_dataset', dataset_id=dataset.id) }}">
                                         <i data-feather="download"></i>
                                     </a>
+                                    
                                 </td>
                             </tr>
                         {% endfor %}
