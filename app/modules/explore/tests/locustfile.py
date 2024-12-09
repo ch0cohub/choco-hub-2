@@ -12,6 +12,9 @@ class ExploreBehavior(TaskSet):
             print(f"Test failed: {response.status_code}")
 
 class ExploreUser(HttpUser):
+    # locust functiona de la siguiente manera: la clase ExploreUser tiene una lista de tareas "tasks" de ti ExploreBehavior, que
+    # hereda de TaskSet. ExploreBehavior tiene un método "explore" que hace una petición GET a la ruta "/explore?query=sample".
+    # "host" es simplemente la dirección del servidor que se va a probar. 
     tasks = [ExploreBehavior]
     min_wait = 5000
     max_wait = 9000
