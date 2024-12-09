@@ -1,0 +1,22 @@
+{% extends "base_template.html" %}
+
+{% block title %}View community{% endblock %}
+
+{% block content %}
+
+{% if communities %}
+    <ul>
+    {% for community in communities %}
+        <li>
+            pepe
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>You have no communities.</p>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('community.scripts') }}"></script>
+{% endblock %}
