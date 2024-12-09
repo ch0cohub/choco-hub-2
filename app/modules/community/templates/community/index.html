@@ -7,14 +7,18 @@
 {% if communities %}
     <ul>
     {% for community in communities %}
-        <li>
-            pepe
+    <li>
+        <strong>{{ community.name }}</strong><br>
+        {{ community.description }}
+    </li>
     {% endfor %}
     </ul>
 {% else %}
     <p>You have no communities.</p>
 {% endif %}
-
+<div>
+    <a href="{{ url_for('community.create_community') }}" class="btn btn-primary">Create Community</a>
+</div>
 {% endblock %}
 
 {% block scripts %}

@@ -16,10 +16,10 @@ class User(db.Model, UserMixin):
     data_sets = db.relationship('DataSet', backref='user', lazy=True)
     profile = db.relationship('UserProfile', backref='user', uselist=False)
     
-    joined_communities = db.relationship(
+    communities = db.relationship(
         'Community',
         secondary=user_community,
-        backref=db.backref('members', lazy='dynamic')
+        backref=db.backref('community_members', lazy='dynamic')
     )
 
     def __init__(self, **kwargs):
