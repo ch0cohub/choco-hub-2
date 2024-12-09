@@ -1,10 +1,10 @@
 import re
-from sqlalchemy import any_, or_
+from app import db
+from sqlalchemy import any_, func, or_
 import unidecode
-from app.modules.dataset.models import Author, DSMetaData, DataSet, PublicationType
+from app.modules.dataset.models import Author, DSMetaData, DataSet, PublicationType, DSViewRecord, DSDownloadRecord
 from app.modules.featuremodel.models import FMMetaData, FeatureModel
 from core.repositories.BaseRepository import BaseRepository
-
 
 class ExploreRepository(BaseRepository):
     def __init__(self):
@@ -15,6 +15,8 @@ class ExploreRepository(BaseRepository):
         title = search_criteria.get('title', None)
         publication_type = search_criteria.get('publication_type', None)
         sorting = search_criteria.get('sorting', None)
+        uvl_validation = search_criteria.get('uvl_validation', None)
+        num_authors = search_criteria.get('num_authors', None)
         tags_str = search_criteria.get('tags_str', None)
         tags = [t.strip() for t in tags_str.split(",")] if tags_str else None
         author_name = search_criteria.get('author_name', None)
@@ -60,6 +62,46 @@ class ExploreRepository(BaseRepository):
             datasets = datasets.order_by(self.model.created_at.asc())
         elif sorting:
             datasets = datasets.order_by(self.model.created_at.desc())
+        elif sorting == "most views":
+            datasets = (
+                datasets
+                .outerjoin(DSViewRecord, DSViewRecord.dataset_id == self.model.id)  # Relación con DSViewRecord
+                .group_by(self.model.id)  # Agrupar por dataset
+                .order_by((db.func.count(DSViewRecord.id)).desc())  # Ordenar por vistas
+            )
+        elif sorting == "most downloads":
+            datasets = (
+                datasets
+                .outerjoin(DSDownloadRecord, DSDownloadRecord.dataset_id == self.model.id)  # Relación con DSDownloadRecord
+                .group_by(self.model.id)  # Agrupar por dataset
+                .order_by((db.func.count(DSDownloadRecord.id)).desc())  # Ordenar por descargas
+            )
+
+        #Comprobar si todos los feature models de un dataset tienen uvl_valid = True
+        if uvl_validation:
+            datasets = datasets.filter(
+            ~DataSet.feature_models.any(FeatureModel.uvl_valid == False)
+            )
+
+        if num_authors != "any":
+            author_count_subquery = (
+                db.session.query(
+                    DSMetaData.id,
+                    func.count(Author.id).label('author_count')
+                )
+                .join(DSMetaData.authors)
+                .group_by(DSMetaData.id)
+                .subquery()
+            )
+
+            datasets = datasets.join(author_count_subquery, author_count_subquery.c.id == DSMetaData.id)
+
+            if num_authors == "1":
+                datasets = datasets.filter(author_count_subquery.c.author_count == 1)
+            elif num_authors == "2-3":
+                datasets = datasets.filter(author_count_subquery.c.author_count.between(2, 3))
+            elif num_authors == "4+":
+                datasets = datasets.filter(author_count_subquery.c.author_count >= 4)
 
         if author_name:
             datasets = datasets.filter(Author.name.ilike(f"%{author_name}%"))
