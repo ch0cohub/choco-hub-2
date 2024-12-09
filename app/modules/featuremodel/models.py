@@ -10,6 +10,7 @@ class FeatureModel(db.Model):
     fm_meta_data_id = db.Column(db.Integer, db.ForeignKey('fm_meta_data.id'))
     files = db.relationship('Hubfile', backref='feature_model', lazy=True, cascade="all, delete")
     fm_meta_data = db.relationship('FMMetaData', uselist=False, backref='feature_model', cascade="all, delete")
+    uvl_valid = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
         return f'FeatureModel<{self.id}>'

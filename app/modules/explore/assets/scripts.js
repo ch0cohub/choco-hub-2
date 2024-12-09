@@ -21,8 +21,9 @@ function send_query() {
         publication_type: document.querySelector('#publication_type').value,
         sorting: document.querySelector('[name="sorting"]:checked').value,
         author_name: document.querySelector('#author_name').value,
+        uvl_validation: document.querySelector('#uvl_validation').checked,
+        num_authors: document.querySelector('#num_authors').value
       };
-
 
       fetch('/explore', {
         method: 'POST',
@@ -205,6 +206,16 @@ function clearFilters() {
   // Perform a new search with the reset filters
   titleInput.dispatchEvent(new Event('input', { bubbles: true }));
 
+    // Reset the UVL validation checkbox
+    let uvlValidationCheckbox = document.querySelector('#uvl_validation');
+    uvlValidationCheckbox.checked = false;
+
+    // Reset the num authors input
+    let numAuthorsInput = document.querySelector('#num_authors');
+    numAuthorsInput.value = "any";
+
+    // Perform a new search with the reset filters
+    queryInput.dispatchEvent(new Event('input', {bubbles: true}));
 }
 
 document.addEventListener('DOMContentLoaded', () => {
