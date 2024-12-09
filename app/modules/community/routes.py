@@ -1,14 +1,37 @@
-from flask import flash, redirect, render_template, url_for
+from flask import flash, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from app.modules.community import community_bp
 from app.modules.community.forms import CommunityForm
+from app.modules.community.models import Community
 from app.modules.community.services import CommunityService
+from app import db
 
 community_service = CommunityService()
 @community_bp.route('/community', methods=['GET'])
 def index():
-    communities = community_service.get_all()
-    return render_template('community/index.html', communities=communities)
+    all_communities = community_service.get_all()
+
+    if current_user.is_authenticated:
+        # Clasificar las comunidades si el usuario está autenticado
+        owner_communities = [c for c in all_communities if c.owner_id == current_user.id]
+        member_communities = [
+            c for c in all_communities 
+            if c.owner_id != current_user.id and current_user in c.members
+        ]
+        other_communities = [
+            c for c in all_communities 
+            if c.owner_id != current_user.id and current_user not in c.members
+        ]
+
+        # Combinar las listas para enviarlas al template en el orden deseado
+        sorted_communities = owner_communities + member_communities + other_communities
+    else:
+        # Si el usuario no está autenticado, mostrar todas las comunidades como "otras"
+        sorted_communities = all_communities
+
+    return render_template('community/index.html', communities=sorted_communities)
+
+
 
 '''
 CREATE
@@ -37,17 +60,22 @@ DELETE
 @login_required
 def delete_community(community_id):
     community = community_service.get_or_404(community_id)
+
+    # Verificar que el usuario sea el propietario
     if community.owner_id != current_user.id:
-        flash('You are not authorized to delete this community', 'error')
+        flash("You are not allowed to delete this community.", "danger")
         return redirect(url_for('community.index'))
 
-    result = community_service.delete(community_id)
-    if result:
-        flash('Community deleted successfully!', 'success')
-    else:
-        flash('Error deleting community', 'error')
-    
+    # Eliminar manualmente las relaciones de miembros
+    community.members.clear()
+    db.session.commit()
+
+    # Eliminar la comunidad
+    db.session.delete(community)
+    db.session.commit()
+    flash("Community deleted successfully.", "success")
     return redirect(url_for('community.index'))
+
 
 
 '''
@@ -83,9 +111,49 @@ def edit_community(community_id):
 READ BY ID
 '''
 @community_bp.route('/community/<int:community_id>', methods=['GET'])
-@login_required
 def get_community(community_id):
     community = community_service.get_or_404(community_id)
     datasets = community.shared_datasets
     
     return render_template('community/show.html', community=community, datasets=datasets)
+
+@community_bp.route('/community/join', methods=['POST'])
+@login_required
+def join_community():
+    community_id = request.json.get('community_id')
+
+    if not community_id:
+        return jsonify({'error': 'Community ID is required'}), 400
+
+    community = Community.query.get(community_id)
+
+    if not community:
+        return jsonify({'error': 'Community not found'}), 404
+
+    if community.owner_id == current_user.id:
+        return jsonify({'error': 'You are the owner of this community'}), 403
+
+    if current_user in community.members:
+        return jsonify({'error': 'You are already a member of this community'}), 403
+
+    community.members.append(current_user)
+    db.session.commit()
+
+    return jsonify({'message': 'You have successfully joined the community'})
+
+@community_bp.route('/community/leave', methods=['POST'])
+@login_required
+def leave_community():
+    community_id = request.json.get('community_id')
+    community = community_service.get_or_404(community_id)
+
+    if not community:
+        return jsonify({'error': 'Community not found'}), 404
+
+    if current_user not in community.members:
+        return jsonify({'error': 'You are not a member of this community'}), 400
+
+    community.members.remove(current_user)
+    db.session.commit()
+
+    return jsonify({'message': 'You have successfully left the community'})

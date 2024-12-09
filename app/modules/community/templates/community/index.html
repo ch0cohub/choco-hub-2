@@ -29,6 +29,21 @@
                         </form>
                     </div>
                     {% endif %}
+                    {% if community.owner_id != current_user.id and current_user.is_authenticated%}
+                        {% if current_user in community.members %}
+                            <!-- Botón para dejar de seguir la comunidad -->
+                            <div class="card-footer text-end">
+                                <button class="btn btn-danger btn-sm" 
+                                        onclick="leaveCommunity('{{ community.id }}')">Leave Community</button>
+                            </div>
+                        {% else %}
+                            <!-- Botón para unirse a la comunidad -->
+                            <div class="card-footer text-end">
+                                <button class="btn btn-primary btn-sm" 
+                                        onclick="joinCommunity('{{ community.id }}')">Join Community</button>
+                            </div>
+                        {% endif %}
+                    {% endif %}
                 </div>
             </a>
         </div>
@@ -44,4 +59,49 @@
 
 {% block scripts %}
     <script src="{{ url_for('community.scripts') }}"></script>
+
+    <script>
+        function joinCommunity(communityId) {
+            fetch('/community/join', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ community_id: communityId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                } else {
+                    alert('You have successfully joined the community!');
+                    location.reload(); 
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function leaveCommunity(communityId) {
+    if (confirm("Are you sure you want to leave this community?")) {
+        fetch('/community/leave', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ community_id: communityId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Error: ' + data.error);
+            } else {
+                alert('You have successfully left the community!');
+                location.reload(); 
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+}
+
+    </script>
 {% endblock %}

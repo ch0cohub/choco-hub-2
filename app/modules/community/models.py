@@ -14,7 +14,7 @@ class Community(db.Model):
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     owner = db.relationship('User', backref='owned_communities', lazy=True)
-    members = db.relationship('User', secondary=user_community, backref=db.backref('joined_communities', lazy='dynamic'))
+    members = db.relationship('User', secondary=user_community, backref=db.backref('joined_communities', lazy='dynamic'), cascade='all')
     
     shared_datasets = db.relationship(
         'DataSet',
