@@ -22,7 +22,7 @@ from flask_login import login_required, current_user
 
 from app.modules.dataset.forms import DataSetForm
 from app.modules.dataset.models import (
-    DSDownloadRecord
+    DSDownloadRecord, DataSet
 )
 from app.modules.dataset import dataset_bp
 from app.modules.dataset.services import (
@@ -34,6 +34,10 @@ from app.modules.dataset.services import (
     DOIMappingService
 )
 from app.modules.zenodo.services import ZenodoService
+from app.modules.community.models import Community
+from app import db
+from app.modules.community.services import CommunityService
+
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +48,7 @@ dsmetadata_service = DSMetaDataService()
 zenodo_service = ZenodoService()
 doi_mapping_service = DOIMappingService()
 ds_view_record_service = DSViewRecordService()
+community_service = CommunityService()
 
 
 @dataset_bp.route("/dataset/upload", methods=["GET", "POST"])
@@ -112,10 +117,14 @@ def create_dataset():
 @dataset_bp.route("/dataset/list", methods=["GET", "POST"])
 @login_required
 def list_dataset():
+    owned_communities = list(current_user.owned_communities)  
+    joined_communities = list(current_user.joined_communities)  
+    all_communities = owned_communities + joined_communities  
     return render_template(
         "dataset/list_datasets.html",
         datasets=dataset_service.get_synchronized(current_user.id),
         local_datasets=dataset_service.get_unsynchronized(current_user.id),
+        communities=all_communities,
     )
 
 
@@ -287,3 +296,45 @@ def download_all_dataset():
       
     zip_path, zip_filename = dataset_service.generate_datasets_and_name_zip()
     return send_file(zip_path, as_attachment=True, download_name=zip_filename)
+
+@dataset_bp.route('/dataset/update_community', methods=['POST'])
+@login_required
+def update_dataset_community():
+    data = request.get_json()  # Captura los datos enviados como JSON
+    dataset_id = data.get('dataset_id')
+    community_id = data.get('community_id')
+    
+    if not dataset_id or not community_id:
+        return jsonify({'error': 'Dataset ID and Community ID are required'}), 400
+
+    dataset = dataset_service.get_or_404(dataset_id)
+    community = community_service.get_or_404(community_id)
+    
+    if not dataset or not community:
+        return jsonify({'error': 'Dataset or Community not found'}), 404
+
+    dataset.community_id = community.id
+    db.session.commit()
+
+    return jsonify({'message': 'Dataset updated successfully'})
+
+@dataset_bp.route('/dataset/remove_community', methods=['POST'])
+@login_required
+def remove_dataset_community():
+    dataset_id = request.json.get('dataset_id')
+    community_id = request.json.get('community_id')
+    
+    dataset = dataset_service.get_or_404(dataset_id)
+    community = community_service.get_or_404(community_id)
+    
+    if not dataset or not community:
+        return jsonify({'error': 'Dataset or Community not found'}), 404
+    
+    if dataset.community_id == community.id:
+        dataset.community_id = None
+        db.session.commit()
+        return jsonify({'message': 'Community association removed successfully'})
+    
+    return jsonify({'error': 'Dataset is not associated with the community'}), 400
+
+
