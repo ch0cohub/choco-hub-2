@@ -2,7 +2,7 @@
 
 Revision ID: 004
 Revises: 003
-Create Date: 2024-12-10 11:47:52.596417
+Create Date: 2024-12-10 15:52:25.675156
 
 """
 from alembic import op
@@ -25,6 +25,10 @@ def upgrade():
     sa.Column('dep_metadata', sa.JSON(), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('doi')
+    )
+    op.create_table('webhook',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('community',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -62,5 +66,6 @@ def downgrade():
 
     op.drop_table('user_community')
     op.drop_table('community')
+    op.drop_table('webhook')
     op.drop_table('deposition')
     # ### end Alembic commands ###
