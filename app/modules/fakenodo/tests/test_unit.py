@@ -16,8 +16,8 @@ def fakenodo_service():
 
 
 @pytest.fixture
-def setup_deposition(app):
-    with app.app_context():
+def setup_deposition(test_client):
+    with test_client.application.app_context():
         deposition = Deposition(id=1, dep_metadata={"title": "Test Deposition"}, status="draft", doi=None)
         db.session.add(deposition)
         db.session.commit()
@@ -27,13 +27,13 @@ def setup_deposition(app):
         
               
 @pytest.fixture
-def app():
+def app(test_client):
     app = create_app()
     app.config.update({
         "TESTING": True,
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:", 
     })
-    with app.app_context():
+    with test_client.application.app_context():
         inspector = inspect(db.engine)
         if "deposition" not in inspector.get_table_names():
             Deposition.__table__.create(db.engine)  
@@ -41,8 +41,8 @@ def app():
         Deposition.__table__.drop(db.engine)
 
 
-def test_create_new_deposition(fakenodo_service, app):
-    with app.app_context():
+def test_create_new_deposition(fakenodo_service, test_client):
+    with test_client.application.app_context():
         
         mock_dataset = MagicMock()    
         
@@ -73,8 +73,8 @@ def test_create_new_deposition(fakenodo_service, app):
             assert result["message"] == "Deposition succesfully created in Fakenodo"
             
 
-def test_upload_file(fakenodo_service, app):
-    with app.app_context():
+def test_upload_file(fakenodo_service, test_client):
+    with test_client.application.app_context():
         mock_dataset = MagicMock(spec=DataSet)
         mock_feature_model = MagicMock(spec=FeatureModel)
         mock_feature_model.fm_meta_data.uvl_filename = "test_file.uvl"
@@ -104,8 +104,8 @@ def test_get_deposition(fakenodo_service, app, setup_deposition):
     assert result["status"] == "draft"
 
 
-def test_get_doi(fakenodo_service, app):
-    with app.app_context():
+def test_get_doi(fakenodo_service, test_client):
+    with test_client.application.app_context():
         mock_deposition = MagicMock(spec=Deposition)
         mock_deposition.id = 1
         mock_deposition.doi = "fakenodo.doi.1"
