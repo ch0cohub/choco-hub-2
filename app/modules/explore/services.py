@@ -7,5 +7,5 @@ class ExploreService(BaseService):
         super().__init__(ExploreRepository())
 
     def filter(self, search_criteria, **kwargs):
-        print("search criteria desde service", search_criteria)
         return self.repository.filter(search_criteria, **kwargs)
+        

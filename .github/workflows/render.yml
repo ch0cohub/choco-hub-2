@@ -1,12 +1,11 @@
-name: Deploy to Render
+name: Deploy Render
 
 on:
     push:
-      tags:
-      - 'v*' 
-    pull_request:
       branches:
-        - master
+        - main
+      tags:
+        - 'v*' 
 
 jobs:
 

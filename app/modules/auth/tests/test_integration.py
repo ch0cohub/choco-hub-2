@@ -3,6 +3,8 @@ from app import db
 from app.modules.conftest import login, logout
 from app.modules.auth.models import User
 from flask_login import current_user
+from app.modules.profile.models import UserProfile
+
 
 @pytest.fixture(scope="module")
 def test_client(test_client):
@@ -11,11 +13,14 @@ def test_client(test_client):
     """
     with test_client.application.app_context():
         user_test = User(email='user@example.com', password='test1234')
+        UserProfile(name="Name", surname="Surname", is_verified=True, user=user_test)
+
         db.session.add(user_test)
         db.session.commit()
 
     yield test_client
-    
+      
+      
 @pytest.fixture(scope="module")
 def test_client_not_logged_in(test_client):
     """
@@ -24,10 +29,12 @@ def test_client_not_logged_in(test_client):
     logout(test_client)
     yield test_client
 
+
 def test_login_logout_flow(test_client):
     """
     Test logging in and out using the auth module.
     """
+
     # Log in the test user
     login_response = login(test_client, "user@example.com", "test1234")
     assert login_response.status_code == 200, "Login was unsuccessful."
@@ -37,6 +44,7 @@ def test_login_logout_flow(test_client):
     logout_response = logout(test_client)
     assert logout_response.status_code == 200, "Logout was unsuccessful."
     assert not current_user.is_authenticated, "The user is still authenticated after logout."
+
 
 def test_registration(test_client):
     """
@@ -52,6 +60,7 @@ def test_registration(test_client):
     with test_client.application.app_context():
         user = User.query.filter_by(email='newuser@example.com').first()
         assert user is None, "New user was not created in the database."
+
 
 def test_protected_route_access(test_client, test_client_not_logged_in):
     """

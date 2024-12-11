@@ -71,6 +71,13 @@ chico sundermann">
                     </a>
                 </li>
 
+                <li class="sidebar-item {{ 'active' if request.endpoint == 'community.index' else '' }}">
+                    <a class="sidebar-link" href="{{ url_for('community.index') }}">
+                        <i class="align-middle" data-feather="globe"></i> <span
+                            class="align-middle">Communities</span>
+                    </a>
+                </li>
+
                 {% if current_user.is_anonymous %}
 
                     <li class="sidebar-header">
@@ -162,6 +169,12 @@ chico sundermann">
             <div class="navbar-collapse collapse">
                 <ul class="navbar-nav navbar-align">
                     <li class="nav-item dropdown">
+
+                        <a href="/dataset/download/all" class="nav-link d-none d-sm-inline-block" style="border-radius: 5px;">
+                            <i data-feather="package"></i>
+                            Download all datasets!
+                        </a>
+                        
 
                         {% if current_user.is_anonymous %}
                             <a class="nav-link  d-none d-sm-inline-block" href="{{ url_for('auth.login') }}">Login</a>

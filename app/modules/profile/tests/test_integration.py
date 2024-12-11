@@ -5,6 +5,7 @@ from app.modules.auth.models import User
 from app.modules.profile.models import UserProfile
 from flask_login import current_user
 
+
 @pytest.fixture(scope="module")
 def test_client(test_client):
     """
@@ -16,11 +17,12 @@ def test_client(test_client):
         db.session.add(user_test)
         db.session.commit()
 
-        profile = UserProfile(user_id=user_test.id, name="Name", surname="Surname")
+        profile = UserProfile(user_id=user_test.id, name="Name", surname="Surname", is_verified=True)
         db.session.add(profile)
         db.session.commit()
 
     yield test_client
+
 
 def test_integration_profile_summary_access(test_client):
     """
@@ -34,6 +36,7 @@ def test_integration_profile_summary_access(test_client):
     assert b"Summary" in response.data or b"Datasets" in response.data, "The expected content is not present on the page"
 
     logout(test_client)
+
 
 def test_profile_edit_integration(test_client):
     """
@@ -57,6 +60,7 @@ def test_profile_edit_integration(test_client):
 
     logout(test_client)
 
+
 def test_profile_edit_integration_invalid_orcid(test_client):
     """
     Test editing the profile with an invalid ORCID.
@@ -79,6 +83,7 @@ def test_profile_edit_integration_invalid_orcid(test_client):
 
     # Log out the user
     logout(test_client)
+
 
 def test_profile_edit_integration_long_name(test_client):
     """
@@ -104,6 +109,7 @@ def test_profile_edit_integration_long_name(test_client):
 
     # Log out the user
     logout(test_client)
+
 
 def test_user_datasets_access(test_client):
     """

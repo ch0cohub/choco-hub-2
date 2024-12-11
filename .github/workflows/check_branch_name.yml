@@ -1,0 +1,35 @@
+name: Validate Branch Name
+
+on:
+  push:
+    branches:
+      - '**'  
+
+jobs:
+  validate-branch-name:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      
+      - name: Check branch name
+        run: |
+          BRANCH_NAME="${GITHUB_REF##*/}"
+          
+          PATTERN="^feature[A-Z][a-zA-Z0-9]+$|^main$|^bugfix[A-Z][a-zA-Z0-9]+$|^test[A-Z][a-zA-Z0-9]+$|^improve[A-Z][a-zA-Z0-9]+$"
+
+          # Comprobar si el nombre de la rama coincide con el patrón
+          if [[ ! "$BRANCH_NAME" =~ $PATTERN ]]; then
+            echo "Error: El nombre de la rama '$BRANCH_NAME' no cumple con el patrón esperado."
+            echo "Debe empezar con 'feature', 'bugfix', 'test','improve' o ser la propia rama "main"."
+            exit 1  
+          else
+            echo "El nombre de la rama '$BRANCH_NAME' es válido."
+          fi
+
+
+
+
+
