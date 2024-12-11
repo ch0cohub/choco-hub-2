@@ -1,6 +1,7 @@
 from app.modules.auth.services import AuthenticationService
+from app.modules.auth.models import User
 from app.modules.dataset.models import DataSet
-from flask import render_template, redirect, url_for, request
+from flask import render_template, redirect, url_for, request, abort
 from flask_login import login_required, current_user
 
 from app import db
@@ -8,7 +9,6 @@ from app.modules.profile import profile_bp
 from app.modules.profile.forms import UserProfileForm
 from app.modules.profile.services import UserProfileService
 from app.modules.profile.models import UserProfile
-
 
 @profile_bp.route("/profile/edit", methods=["GET", "POST"])
 @login_required
@@ -58,8 +58,11 @@ def my_profile():
 @profile_bp.route('/profile/<int:user_id>/datasets')
 @login_required
 def user_datasets(user_id):
-    user = db.session.query(UserProfile).filter(UserProfile.id == user_id).first()
-    
+    user = db.session.query(User).filter(User.id == user_id).first()
+
+    if not user:
+        abort(404)
+        
     if user:
         page = request.args.get('page', 1, type=int)
         per_page = 5
