@@ -1,4 +1,5 @@
 import logging
+from app import db
 from app.modules.hubfile.services import HubfileService
 from flask import send_file, jsonify, after_this_request
 from app.modules.flamapy import flamapy_bp
@@ -62,8 +63,15 @@ def check_uvl(file_id):
         # tree = parser.featureModel()
 
         if error_listener.errors:
+            feature_model = hubfile.feature_model
+            feature_model.uvl_valid = False
+            db.session.commit()
             return jsonify({"errors": error_listener.errors}), 400
 
+        feature_model = hubfile.feature_model
+        feature_model.uvl_valid = True
+        db.session.commit()
+        
         # Optional: Print the parse tree
         # print(tree.toStringTree(recog=parser))
 

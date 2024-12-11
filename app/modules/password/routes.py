@@ -43,6 +43,11 @@ def change_password(token):
 
     if request.method == 'POST':
         password = request.form['password']
+        confirm_password = request.form['confirm_password']
+        # Validación: Las contraseñas deben coincidir
+        if password != confirm_password:
+            flash('Passwords do not match. Please try again.', 'danger')
+            return render_template('password/change_password.html')
         password_service.change_password(email=email, password=password)
         flash('Your password has been updated!', 'success')
         return redirect(url_for('auth.login'))

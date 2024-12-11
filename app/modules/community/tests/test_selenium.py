@@ -5,7 +5,7 @@ from core.environment.host import get_host_for_selenium_testing
 from core.selenium.common import initialize_driver, close_driver
 
 
-def test_password_index():
+def test_community_index():
 
     driver = initialize_driver()
 
@@ -13,7 +13,7 @@ def test_password_index():
         host = get_host_for_selenium_testing()
 
         # Open the index page
-        driver.get(f'{host}/password')
+        driver.get(f'{host}/community')
 
         # Wait a little while to make sure the page has loaded completely
         time.sleep(4)
@@ -32,4 +32,4 @@ def test_password_index():
 
 
 # Call the test function
-test_password_index()
+test_community_index()

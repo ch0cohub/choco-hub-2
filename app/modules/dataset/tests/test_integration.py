@@ -5,7 +5,7 @@ from app.modules.auth.models import User
 from app.modules.dataset.services import DataSetService
 from flask_login import current_user
 from app.modules.profile.models import UserProfile
-
+from datetime import datetime
 
 @pytest.fixture(scope="module")
 def test_client(test_client):
@@ -56,4 +56,41 @@ def test_dataset_upload_bad_request(test_client):
     assert response.status_code == 400, "Dataset upload failed."
     logout(test_client)
 
-
+def test_download_all_datasets(test_client):
+    """Test downloading all datasets as a zip file."""
+    login_response = login(test_client, "user@example.com", "test1234")
+    assert login_response.status_code == 200, "Login was unsuccessful."
+    
+    response = test_client.get("/dataset/download/all")
+    
+    # Comprobar que la respuesta sea exitosa (código 200)
+    assert response.status_code == 200, "Download request failed."
+    
+    # Comprobar que la respuesta tiene el tipo de contenido adecuado para un archivo zip
+    assert response.content_type == 'application/zip', f"Expected 'application/zip' but got {response.content_type}"
+    
+    # Verificar que el encabezado 'Content-Disposition' contiene 'attachment' y el nombre del archivo
+    assert 'attachment' in response.headers['Content-Disposition'], "The response is not an attachment."
+    assert 'zip' in response.headers['Content-Disposition'], "The file is not a zip file."
+    
+    # Verificar que el archivo descargado tenga un nombre apropiado
+    today_date = datetime.now().strftime("%d_%m_%Y")
+    expected_filename = f"chocohub2_datasets_from_{today_date}.zip"  
+    assert expected_filename in response.headers['Content-Disposition'], f"Expected zip filename '{expected_filename}' but got {response.headers['Content-Disposition']}."
+    
+    logout(test_client)
+    
+    
+def test_download_all_datasets_public_access(test_client):
+    """Test downloading all datasets without authentication (public access)."""
+    response = test_client.get("/dataset/download/all")
+    
+    # Verificar que la respuesta sea exitosa (código 200)
+    assert response.status_code == 200, "Download request failed."
+    
+    # Verificar que el tipo de contenido sea 'application/zip'
+    assert response.content_type == 'application/zip', f"Expected 'application/zip' but got {response.content_type}"
+    
+    # Verificar que el encabezado 'Content-Disposition' contenga 'attachment' y el nombre del archivo ZIP
+    assert 'attachment' in response.headers['Content-Disposition'], "The response is not an attachment."
+    assert 'zip' in response.headers['Content-Disposition'], "The file is not a zip file."

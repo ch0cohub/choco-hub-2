@@ -1,0 +1,26 @@
+{% extends "base_template.html" %}
+
+{% block title %}View community{% endblock %}
+
+{% block content %}
+
+<form method="POST" action="{{ url_for('community.edit_community', community_id=community.id) }}">
+    {{ form.hidden_tag() }}
+    <div>
+        {{ form.name.label }}<br>
+        {{ form.name(size=32) }}
+    </div>
+    <div>
+        {{ form.description.label }}<br>
+        {{ form.description(rows=5) }}
+    </div>
+    <div>
+        {{ form.submit() }}
+    </div>
+</form>
+
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('community.scripts') }}"></script>
+{% endblock %}
