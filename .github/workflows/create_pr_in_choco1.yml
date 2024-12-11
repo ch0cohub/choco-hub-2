@@ -48,3 +48,8 @@ jobs:
           --base master \
           --head choco2-repo-branch-1-12
 
+    - name: Debug SSH Connection
+      run: |
+        ssh -vT git@github.com
+
+
