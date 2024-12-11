@@ -34,7 +34,7 @@ jobs:
         git remote add choco1 https://github.com/ch0cohub/choco-hub-1.git
         git fetch choco1 develop
 
-        git checkout -B choco1-repo-branch-30-11
+        git checkout -B choco1-repo-branch-$(date +"%d%m%Y%H%M%S")
 
         git pull --no-rebase origin choco1-repo-branch-30-11
         git merge --no-ff --no-edit --allow-unrelated-histories choco1/develop
