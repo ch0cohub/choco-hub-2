@@ -14,29 +14,33 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Check if Major Version
-        id: check_major
+      - name: Check if Major or Minor Version
+        id: check_version
         run: |
-          # Extract the current and previous tags
-          current_tag=$(git describe --tags --abbrev=0)
-          previous_tag=$(git describe --tags --abbrev=0 HEAD^ || echo "v0.0.0")
+            # Extract the current and previous tags
+            current_tag=$(git describe --tags --abbrev=0)
+            previous_tag=$(git describe --tags --abbrev=0 HEAD^ || echo "v0.0.0")
 
-          # Get the major versions
-          current_major=$(echo $current_tag | cut -d '.' -f 1 | tr -d 'v')
-          previous_major=$(echo $previous_tag | cut -d '.' -f 1 | tr -d 'v')
+            # Get the major and minor versions
+            current_major=$(echo $current_tag | cut -d '.' -f 1 | tr -d 'v')
+            previous_major=$(echo $previous_tag | cut -d '.' -f 1 | tr -d 'v')
 
-          # Check if the major version incremented
-          if [[ "$current_major" -gt "$previous_major" ]]; then
-            echo "is_major=true" >> $GITHUB_ENV
-          else
-            echo "is_major=false" >> $GITHUB_ENV
-          fi
+            current_minor=$(echo $current_tag | cut -d '.' -f 2)
+            previous_minor=$(echo $previous_tag | cut -d '.' -f 2)
 
-      - name: Stop if not Major Version
-        if: env.is_major != 'true'
-        run: |
-          echo "This is not a major version. Skipping release."
-          exit 0
+            # Check if the major or minor version incremented
+            if [[ "$current_major" -gt "$previous_major" ]] || [[ "$current_minor" -gt "$previous_minor" ]]; then
+              echo "is_release=true" >> $GITHUB_ENV
+            else
+              echo "is_release=false" >> $GITHUB_ENV
+            fi
+
+      - name: Stop if not Major or Minor Version
+        if: env.is_release != 'true'
+            run: |
+            echo "This is not a major or minor version. Skipping release."
+            exit 0
+
 
       - name: Generate Changelog
         id: changelog
