@@ -30,7 +30,7 @@ jobs:
         id: version_type
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            # Manual trigger: Use the provided input
+            # Trigger manual: Use the provided input
             echo "version_type=${{ github.event.inputs.version_type }}" >> $GITHUB_ENV
           else
             # Extract the last commit message
@@ -51,7 +51,7 @@ jobs:
         id: tag
         run: |
           # Extract the latest tag
-          latest_tag=$(git describe --tags --abbrev=0 || echo "v0.0.0")
+          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           echo "Latest tag: $latest_tag"
 
           # Parse the latest tag into components
@@ -78,6 +78,8 @@ jobs:
         run: |
           git tag -a ${{ env.tag }} -m "Release ${{ env.tag }}"
           git push origin ${{ env.tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Usar el token de GitHub para autenticación
 
 #Funcionamiento:
 #Automaticamente agrega 1 a patch en cada PR a main
