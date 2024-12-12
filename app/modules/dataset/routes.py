@@ -33,12 +33,11 @@ from app.modules.dataset.services import (
     DataSetService,
     DOIMappingService
 )
-from app.modules.zenodo.services import ZenodoService
 from app.modules.community.models import Community
 from app import db
 from app.modules.community.services import CommunityService
 
-from app.modules.fakenodo.services import FakenodoService
+from app.modules.fakenodo.services import FakeNodoService
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +45,7 @@ logger = logging.getLogger(__name__)
 dataset_service = DataSetService()
 author_service = AuthorService()
 dsmetadata_service = DSMetaDataService()
-fakenodoService = FakenodoService()
+fakenodo_service = FakeNodoService()
 doi_mapping_service = DOIMappingService()
 ds_view_record_service = DSViewRecordService()
 community_service = CommunityService()
@@ -72,44 +71,41 @@ def create_dataset():
             logger.exception(f"Exception while create dataset data in local {exc}")
             return jsonify({"Exception while create dataset data in local: ": str(exc)}), 400
 
-        # send dataset as deposition to Zenodo
-        data = {}
+        # Aquí se simula la creación del deposition en FakeNodo
         try:
-            zenodo_response_json = fakenodoService.create_new_deposition(dataset)
+            # Simula la creación del deposition en FakeNodo
+            deposition_data = fakenodo_service.create_new_deposition(dataset.ds_meta_data.title, dataset.ds_meta_data.description)
+            deposition_id = deposition_data.get("id")
+            deposition_doi = deposition_data.get("doi")
+            logger.info(f"Deposition created with ID: {deposition_id} and DOI: {deposition_doi}")
+            
+            # Actualiza los metadatos del dataset con el ID y DOI del deposition
+            dataset_service.update_dsmetadata(dataset.ds_meta_data_id, deposition_id=deposition_id, dataset_doi=deposition_doi)
+            
+            
+            
+        except Exception as exc:
+            logger.exception(f"Exception while simulating deposition creation: {exc}")
+            return jsonify({"Exception while simulating deposition creation: ": str(exc)}), 400
+
+        
+        try:
+            zenodo_response_json = fakenodo_service.create_new_deposition(dataset)
             response_data = json.dumps(zenodo_response_json)
             data = json.loads(response_data)
+            if data.get("conceptrecid"):
+                deposition_id = data.get("id")
+                dataset_service.update_dsmetadata(dataset.ds_meta_data_id, deposition_id=deposition_id)
+                # Realizar otras operaciones como carga de archivos o publicación
         except Exception as exc:
-            data = {}
-            zenodo_response_json = {}
-            logger.exception(f"Exception while create dataset data in Zenodo {exc}")
+            logger.exception(f"Exception while creating dataset in Zenodo {exc}")
 
-        if data.get("conceptrecid"):
-            deposition_id = data.get("id")
-
-            # update dataset with deposition id in Zenodo
-            dataset_service.update_dsmetadata(dataset.ds_meta_data_id, deposition_id=deposition_id)
-
-            try:
-                # iterate for each feature model (one feature model = one request to Zenodo)
-                for feature_model in dataset.feature_models:
-                    fakenodoService.upload_file(dataset, deposition_id, feature_model)
-
-                # publish deposition
-                fakenodoService.publish_deposition(deposition_id)
-
-                # update DOI
-                deposition_doi = fakenodoService.get_doi(deposition_id)
-                dataset_service.update_dsmetadata(dataset.ds_meta_data_id, dataset_doi=deposition_doi)
-            except Exception as e:
-                msg = f"it has not been possible upload feature models in Fakenodo and update the DOI: {e}"
-                return jsonify({"message": msg}), 200
-
-        # Delete temp folder
+        # Limpieza de archivos temporales
         file_path = current_user.temp_folder()
         if os.path.exists(file_path) and os.path.isdir(file_path):
             shutil.rmtree(file_path)
 
-        msg = "Everything works!"
+        msg = "Dataset created and synchronized with FakeNodo!"
         return jsonify({"message": msg}), 200
 
     return render_template("dataset/upload_dataset.html", form=form)

@@ -1,10 +1,7 @@
-from app.modules.fakenodo.models import Deposition
+from app.modules.fakenodo.models import FakeNodo
 from core.repositories.BaseRepository import BaseRepository
 
 
-class DepositionRepo(BaseRepository):
+class FakeNodoRepository(BaseRepository):
     def __init__(self):
-        super().__init__(Deposition)
-
-    def create_new_deposition(self, metadata):
-        return self.create(metadata=metadata)
+        super().__init__(FakeNodo)
