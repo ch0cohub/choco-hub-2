@@ -1,0 +1,74 @@
+name: Release Workflow
+
+on:
+  push:
+    tags:
+      - "v*"  # Trigger only on version tags
+
+jobs:
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check if Major Version
+        id: check_major
+        run: |
+          # Extract the current and previous tags
+          current_tag=$(git describe --tags --abbrev=0)
+          previous_tag=$(git describe --tags --abbrev=0 HEAD^ || echo "v0.0.0")
+
+          # Get the major versions
+          current_major=$(echo $current_tag | cut -d '.' -f 1 | tr -d 'v')
+          previous_major=$(echo $previous_tag | cut -d '.' -f 1 | tr -d 'v')
+
+          # Check if the major version incremented
+          if [[ "$current_major" -gt "$previous_major" ]]; then
+            echo "is_major=true" >> $GITHUB_ENV
+          else
+            echo "is_major=false" >> $GITHUB_ENV
+          fi
+
+      - name: Stop if not Major Version
+        if: env.is_major != 'true'
+        run: |
+          echo "This is not a major version. Skipping release."
+          exit 0
+
+      - name: Generate Changelog
+        id: changelog
+        run: |
+          # Extract the current tag
+          current_tag=$(git describe --tags --abbrev=0)
+
+          # Find the previous tag
+          previous_tag=$(git describe --tags --abbrev=0 HEAD^ || echo "")
+
+          # Generate changelog
+          if [ -z "$previous_tag" ]; then
+            changelog=$(git log --pretty=format:"- %s")
+          else
+            changelog=$(git log $previous_tag..$current_tag --pretty=format:"- %s")
+          fi
+
+          echo "Changelog:"
+          echo "$changelog"
+
+          # Save changelog for use in release
+          echo "changelog=$changelog" >> $GITHUB_ENV
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: ${{ github.ref_name }}
+          body: ${{ env.changelog }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+#Funcionamiento:
+#Cada vez que se crea un tag, verifica si es un cambio major
+#caso afirmativo crea una release y un changelog

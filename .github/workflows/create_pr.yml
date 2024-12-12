@@ -3,7 +3,7 @@ name: Open Pull Request in Choco2
 on:
   push:
     branches:
-      - develop
+      - main
 
 jobs:
   create-pr:
