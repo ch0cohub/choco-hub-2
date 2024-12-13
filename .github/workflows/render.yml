@@ -52,6 +52,7 @@ jobs:
 
   cleanup_connections:
       name: Cleanup Filess.io Database Connections
+      needs: testing
       runs-on: ubuntu-latest
 
       steps:
@@ -74,7 +75,7 @@ jobs:
 
   deploy:
     name: Deploy to Render
-    needs: testing
+    needs: cleanup_connections
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
