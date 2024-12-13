@@ -36,20 +36,30 @@ jobs:
         git fetch choco1 main
 
         git checkout -B choco1-repo-branch-30-11
-
         git pull --no-rebase origin choco1-repo-branch-30-11
         git merge --no-ff --no-edit --allow-unrelated-histories choco1/main
-        
-        git push origin choco1-repo-branch-30-11
-   
-        gh auth login --with-token <<< "${{ secrets.GH_TOKEN }}"
 
-        # Intentar crear el Pull Request
+        git push origin choco1-repo-branch-30-11
+
+    - name: Check if PR already exists
+      id: check-pr
+      run: |
+        PR_EXISTS=$(gh pr list --base main --head choco1-repo-branch-30-11 --json number | jq '.[0] | select(. != null) | .number')
+        echo "::set-output name=pr_exists::$PR_EXISTS"
+
+    - name: Create Pull Request
+      if: ${{ steps.check-pr.outputs.pr_exists == '' }}
+      run: |
+        gh auth login --with-token <<< "${{ secrets.GH_TOKEN }}"
         gh pr create \
           --title "Sync from choco1/main" \
           --body "This PR merges changes from choco1/main into choco2/main." \
           --base main \
-          --head choco1-repo-branch || \
-        # Si ya existe, actualizar el PR
-        gh pr edit "Sync from choco1/main" --body "Updated with the latest changes from choco1/main."
+          --head choco1-repo-branch-30-11
 
+    - name: Update Pull Request
+      if: ${{ steps.check-pr.outputs.pr_exists != '' }}
+      run: |
+        gh auth login --with-token <<< "${{ secrets.GH_TOKEN }}"
+        PR_NUMBER=${{ steps.check-pr.outputs.pr_exists }}
+        gh pr edit $PR_NUMBER --title "Sync from choco1/main" --body "Updated with the latest changes from choco1/main."
