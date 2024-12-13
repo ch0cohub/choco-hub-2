@@ -1,7 +1,7 @@
 from locust import HttpUser, TaskSet, task
 from core.locust.common import get_csrf_token
 from core.environment.host import get_host_for_locust_testing
-
+import random
 
 class DatasetBehavior(TaskSet):
     def on_start(self):
@@ -20,6 +20,34 @@ class DatasetBehavior(TaskSet):
                 print(f"Archivo descargado exitosamente: {response.status_code}")
             else:
                 print(f"Error al descargar archivo: {response.status_code}")
+                
+    @task
+    def update_dataset_community(self):
+        dataset_id = random.randint(1, 1000)  # IDs de prueba
+        community_id = random.randint(1, 500)  # IDs de prueba
+
+        response = self.client.post(
+            "/dataset/update_community",
+            json={
+                "dataset_id": dataset_id,
+                "community_id": community_id
+            }
+        )
+        print(f"Update Dataset Community: {response.status_code} - {response.text}")
+
+    @task
+    def remove_dataset_community(self):
+        dataset_id = random.randint(1, 1000)  # IDs de prueba
+        community_id = random.randint(1, 500)  # IDs de prueba
+
+        response = self.client.post(
+            "/dataset/remove_community",
+            json={
+                "dataset_id": dataset_id,
+                "community_id": community_id
+            }
+        )
+        print(f"Remove Dataset Community: {response.status_code} - {response.text}")
 
 
 class DatasetUser(HttpUser):
