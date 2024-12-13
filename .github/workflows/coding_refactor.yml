@@ -1,0 +1,76 @@
+name: Refactor Workflow
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  linting:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt  
+          pip install flake8 black
+      - name: Set up Git
+        run: |
+          git config --global user.name "ManuelVelezLopez"
+          git config --global user.email "manvellop2@alum.us.es"
+
+      - name: Configure SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      - name: Run Black for auto-formatting
+        run: black .
+
+      - name: Commit changes from black
+        run: |
+          if [[ $(git status --porcelain) ]]; then
+              git add .
+              git commit -m "Refactor code with Black auto-formatting"
+              git push origin ${{ github.ref_name }}  # Empuja solo a la rama feature actual
+          else
+              echo "No changes detected by Black."
+          fi
+      
+
+      - name: Create or Update Pull Request
+        run: |
+          gh auth login --with-token <<< "${{ secrets.GH_TOKEN_ANGEL }}"
+          existing_pr=$(gh pr list \
+            --base main \
+            --head "${{ github.ref_name }}" \
+            --json number \
+            --jq '.[0].number')
+
+          if [ -z "$existing_pr" ]; then
+              echo "No existe un PR con el mismo título, creando uno nuevo..."
+              gh pr create \
+                --title "refactor from ${{ github.ref_name }}" \
+                --body "Este PR fusiona cambios desde ${{ github.ref_name }} hacia main." \
+                --base main \
+                --head "${{ github.ref_name }}"
+          else
+              echo "Ya existe un PR (#${existing_pr}) con el mismo título, actualizándolo..."
+              gh pr edit "$existing_pr" \
+                --title "refactor from ${{ github.ref_name }}" \
+                --body "Actualizando el PR existente para fusionar cambios desde ${{ github.ref_name }} hacia main."
+          fi
