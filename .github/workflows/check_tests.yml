@@ -7,6 +7,7 @@ on:
  
 jobs: 
   testing:
+    if: ${{ github.repository == 'ch0cohub/choco-hub-1' }}
     name: Run Tests
     runs-on: ubuntu-latest
 
