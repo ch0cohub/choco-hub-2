@@ -36,6 +36,7 @@ jobs:
         git fetch choco1 main
 
         git checkout -B choco1-repo-branch-30-11
+        git pull --no-rebase origin choco1-repo-branch-30-11
         git merge --no-ff --no-edit --allow-unrelated-histories choco1/main
 
         git push origin choco1-repo-branch-30-11
