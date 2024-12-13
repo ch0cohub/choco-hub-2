@@ -1,4 +1,7 @@
-name: Code Quality with Flake8
+name: Refactor Workflow
+
+permissions:
+  contents: write
 
 on:
   push:
@@ -24,10 +27,47 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt  
 
-      - name: Install Flake8
+      - name: Run Flake8 for linting
         run: |
-          pip install flake8
+          flake8 .  # Ejecuta flake8 para chequear errores de estilo
 
-      - name: Run Flake8
-        run: flake8 app/
-        continue-on-error: true
+      - name: Run Black for auto-formatting
+        run: black .
+
+      - name: Commit changes from black
+        run: |
+          if [[ $(git status --porcelain) ]]; then
+              git config --global user.email "github-actions[bot]@users.noreply.github.com"
+              git config --global user.name "GitHub Actions"  # Asegúrate de configurar el nombre y el correo correctamente
+
+              git add .
+              git commit -m "Refactor code with Black auto-formatting"
+              git push origin ${{ github.ref_name }}  # Asegúrate de hacer push a la rama actual
+          else
+              echo "No changes detected by Black."
+          fi
+
+  create_pr:
+    name: Create Pull Request
+    runs-on: ubuntu-latest
+    needs: linting  # Este job solo se ejecutará después de que el job 'linting' termine con éxito
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure Git
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "GitHub Actions"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref_name }}  # La rama donde se hizo el commit
+          base: main  # Rama a la que se hace la PR
+          title: "Refactor: ${{ github.ref_name }}"
+          body: |
+            Este PR fue creado automáticamente después de un refactor en la rama `${{ github.ref_name }}`.
+            - **Linting**: Flake8 y Black ejecutados exitosamente.
+          draft: false  # Puedes ponerlo en 'false' si prefieres que no sea un borrador
