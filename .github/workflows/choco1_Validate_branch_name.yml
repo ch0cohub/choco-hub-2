@@ -18,9 +18,9 @@ jobs:
           echo "Validando nombre de la rama: $BRANCH_NAME"
           
           # Reglas para nombres válidos
-          if [[ "$BRANCH_NAME" =~ ^WI-[0-9]+([-.a-zA-Z0-9_]+)?$ || "$BRANCH_NAME" =~ ^choco2-repo-branch- ]]; then
+          if [[ "$BRANCH_NAME" =~ ^WI-[0-9]+([-.a-zA-Z0-9_]+)?$ || "$BRANCH_NAME" =~ ^choco2-repo-branch- || "$BRANCH_NAME" =~ ^WF-.*$ ]]; then
             echo "Nombre de rama válido: $BRANCH_NAME"
           else
-            echo "Error: Nombre de rama inválido. Debe empezar por 'WI-X' donde X es un número, o 'choco2-repo-branch-'"
+            echo "Error: Nombre de rama inválido. Debe empezar por 'WI-X' donde X es un número, 'choco2-repo-branch-', o 'WF-'."
             exit 1
           fi
