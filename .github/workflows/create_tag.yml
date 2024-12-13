@@ -3,9 +3,9 @@ name: Tag Workflow
 on:
   push:
     branches:
-      - main  # Activa el workflow en push a la rama principal
+      - main
 
-  workflow_dispatch:  # Trigger manual para seleccionar tipo de versión
+  workflow_dispatch:
     inputs:
       version_type:
         description: "Type of version to bump (major, minor, patch)"
@@ -17,6 +17,8 @@ jobs:
     if: ${{ github.repository == 'ch0cohub/choco-hub-1' }}
     name: Create Tag
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout code
@@ -27,18 +29,14 @@ jobs:
           git config user.name "FrancoDellAguila"
           git config user.email "francodellaguila@hotmail.com"
 
-      - name: Determine Version Type from Commit Message
+      - name: Determine Version Type
         id: version_type
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            # Trigger manual: Use the provided input
             echo "version_type=${{ github.event.inputs.version_type }}" >> $GITHUB_ENV
           else
-            # Extract the last commit message
             last_commit=$(git log -1 --pretty=%B)
             echo "Last commit message: $last_commit"
-
-            # Check for version keywords in the commit message
             if [[ "$last_commit" =~ "#major" ]]; then
               echo "version_type=major" >> $GITHUB_ENV
             elif [[ "$last_commit" =~ "#minor" ]]; then
@@ -51,17 +49,15 @@ jobs:
       - name: Generate Tag Version
         id: tag
         run: |
-          # Extract the latest tag
-          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          echo "Latest tag: $latest_tag"
+          latest_tag=$(git tag --sort=-v:refname | head -n 1 || echo "v0.0.0")
 
-          # Parse the latest tag into components
-          version_parts=(${latest_tag//v/})
-          major=${version_parts[0]}
-          minor=${version_parts[1]:-0}
-          patch=${version_parts[2]:-0}
+          if [[ ! "$latest_tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid tag format: $latest_tag. Defaulting to v0.0.0."
+            latest_tag="v0.0.0"
+          fi
 
-          # Determine the new version based on the version_type
+          IFS='.' read -r major minor patch <<< "${latest_tag#v}"
+
           case "${{ env.version_type }}" in
             major) major=$((major + 1)); minor=0; patch=0 ;;
             minor) minor=$((minor + 1)); patch=0 ;;
@@ -70,9 +66,6 @@ jobs:
           esac
 
           new_tag="v${major}.${minor}.${patch}"
-          echo "New tag: $new_tag"
-
-          # Output the new tag
           echo "tag=$new_tag" >> $GITHUB_ENV
 
       - name: Create Tag
@@ -80,7 +73,7 @@ jobs:
           git tag -a ${{ env.tag }} -m "Release ${{ env.tag }}"
           git push origin ${{ env.tag }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Usar el token de GitHub para autenticación
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}  # Usar el token de GitHub para autenticación
 
 #Funcionamiento:
 #Automaticamente agrega 1 a patch en cada PR a main
