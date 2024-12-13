@@ -7,6 +7,7 @@ on:
 
 jobs:
   release:
+    if: ${{ github.repository == 'ch0cohub/choco-hub-1' }}
     name: Create GitHub Release
     runs-on: ubuntu-latest
 
