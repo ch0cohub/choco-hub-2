@@ -3,4 +3,4 @@ from wtforms import SubmitField
 
 
 class SignupvalidationForm(FlaskForm):
-    submit = SubmitField('Save signupvalidation')
+    submit = SubmitField("Save signupvalidation")

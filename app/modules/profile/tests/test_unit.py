@@ -13,7 +13,7 @@ def test_client(test_client):
     for module testing (por example, new users)
     """
     with test_client.application.app_context():
-        user_test = User(email='user@example.com', password='test1234')
+        user_test = User(email="user@example.com", password="test1234")
         db.session.add(user_test)
         db.session.commit()
 
@@ -29,39 +29,46 @@ def test_edit_post(test_client):
     assert login_response.status_code == 200, "Login was unsuccessful."
     response = test_client.post(
         "/profile/edit",
-        data=dict(name="Name"
-                  , surname="Surname"
-                  , orcid="0000-0001-0020-0330"
-                  , affiliation="Affiliation")
-        , follow_redirects=True)
-    assert response.status_code == 200  
-    
-    
+        data=dict(
+            name="Name",
+            surname="Surname",
+            orcid="0000-0001-0020-0330",
+            affiliation="Affiliation",
+        ),
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+
+
 def test_edit_post_wrong_orcid(test_client):
-    #otro error en el test, el orcid no tiene el formato correcto y pasa con 200
+    # otro error en el test, el orcid no tiene el formato correcto y pasa con 200
     login_response = login(test_client, "user@example.com", "test1234")
     assert login_response.status_code == 200, "Login was unsuccessful."
     response = test_client.post(
         "/profile/edit",
-        data=dict(name="Name"
-                  , surname="Surname"
-                  , orcid="w000-0r01-0010-03t0"
-                  , affiliation="Affiliation")
-        , follow_redirects=True)
+        data=dict(
+            name="Name",
+            surname="Surname",
+            orcid="w000-0r01-0010-03t0",
+            affiliation="Affiliation",
+        ),
+        follow_redirects=True,
+    )
     assert response.status_code == 200
-    
-    
+
+
 def test_edit_post_wrong_length(test_client):
-    #otro error en el test, la validacion de longitud en bakcend no esta funcionando
+    # otro error en el test, la validacion de longitud en bakcend no esta funcionando
     login_response = login(test_client, "user@example.com", "test1234")
     assert login_response.status_code == 200, "Login was unsuccessful."
     response = test_client.post(
         "/profile/edit",
-        data=dict(name="JonathanChristopherEdwardAlexanderBenjaminWilliamJamesHenryNicholasMatthewJosephDanielBenjaminFrederickGeorgeTheodoreChristopher"
-                  , surname="AndersonJohnsonRobertsonWilliamsonThompsonHendersonRichardsonAlexanderDavidsonHarrisonRobinsonSandersonPetersonMcDonald"
-                  , orcid="0000-0001-0010-0300"
-                  , affiliation="Affiliation")
-        , follow_redirects=True)
+        data=dict(
+            name="JonathanChristopherEdwardAlexanderBenjaminWilliamJamesHenryNicholasMatthewJosephDanielBenjaminFrederickGeorgeTheodoreChristopher",
+            surname="AndersonJohnsonRobertsonWilliamsonThompsonHendersonRichardsonAlexanderDavidsonHarrisonRobinsonSandersonPetersonMcDonald",
+            orcid="0000-0001-0010-0300",
+            affiliation="Affiliation",
+        ),
+        follow_redirects=True,
+    )
     assert response.status_code == 200
-
-

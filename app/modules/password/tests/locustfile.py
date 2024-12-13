@@ -1,7 +1,9 @@
 from locust import HttpUser, TaskSet, task
 from flask import Flask
 from app.modules.password.services import PasswordService
-from core.locust.common import get_csrf_token  # Asegúrate de importar correctamente tu servicio
+from core.locust.common import (
+    get_csrf_token,
+)  # Asegúrate de importar correctamente tu servicio
 
 # Instancia Flask para usar el servicio correctamente
 app = Flask(__name__)
@@ -20,7 +22,6 @@ class ChangePasswordBehavior(TaskSet):
             password_service = PasswordService()
             return password_service.get_token_from_email(email)
 
-    
     @task(1)
     def request_password_change(self):
         """Solicitar el formulario de cambio de contraseña."""
@@ -43,11 +44,14 @@ class ChangePasswordBehavior(TaskSet):
 
         # Simular cambio de contraseña
         new_password = "NewPassword123!"  # Puedes usar una contraseña fija o generarla dinámicamente
-        response = self.client.post(f"/change/password/{reset_token}", data={
-            "password": new_password,
-            "confirm_password": new_password,
-            "csrf_token": csrf_token
-        })
+        response = self.client.post(
+            f"/change/password/{reset_token}",
+            data={
+                "password": new_password,
+                "confirm_password": new_password,
+                "csrf_token": csrf_token,
+            },
+        )
 
         if response.status_code == 302:
             print("Password changed successfully")
@@ -75,19 +79,22 @@ class ChangePasswordBehavior(TaskSet):
             print("Failed to retrieve CSRF token")
             return
 
-        response = self.client.post("/login", data={
-            "email": 'user1@example.com',
-            "password": '1234',
-            "csrf_token": csrf_token
-        })
+        response = self.client.post(
+            "/login",
+            data={
+                "email": "user1@example.com",
+                "password": "1234",
+                "csrf_token": csrf_token,
+            },
+        )
         if response.status_code != 200:
             print(f"Login failed: {response.status_code}")
 
 
 class AuthUser(HttpUser):
     """Usuario de prueba para Locust."""
+
     tasks = [ChangePasswordBehavior]
     min_wait = 1000  # 1 segundo
     max_wait = 3000  # 3 segundos
     host = "http://localhost:5000"  # Define la URL base de tu aplicación
-

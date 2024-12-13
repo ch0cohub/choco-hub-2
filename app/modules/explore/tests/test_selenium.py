@@ -13,30 +13,33 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from core.environment.host import get_host_for_selenium_testing
 from core.selenium.common import close_driver, initialize_driver
 
-class TestSelenium():
-  # este método se ejecuta antes de cada test y se encarga de inicializar el driver de selenium
-  def setup_method(self, method):
-    self.driver = webdriver.Firefox()
-    self.vars = {}
-  
-  # este método se ejecuta después de cada test y se encarga de cerrar el driver de selenium
-  def teardown_method(self, method):
-    self.driver.quit()
-  
-  # este es el test que se ejecutará con selenium, primero se accede a la ruta, se hace click en la barra de búsqueda, se escribe "sample"
-  # y se presiona enter
-  def test_selenium1(self):
-    self.driver.get("http://localhost:5000/")
-    self.driver.set_window_size(1346, 748)
-    self.driver.find_element(By.ID, "search-query").click()
-    self.driver.find_element(By.ID, "search-query").send_keys("sample")
-    self.driver.find_element(By.ID, "search-query").send_keys(Keys.ENTER)
-  
+
+class TestSelenium:
+    # este método se ejecuta antes de cada test y se encarga de inicializar el driver de selenium
+    def setup_method(self, method):
+        self.driver = webdriver.Firefox()
+        self.vars = {}
+
+    # este método se ejecuta después de cada test y se encarga de cerrar el driver de selenium
+    def teardown_method(self, method):
+        self.driver.quit()
+
+    # este es el test que se ejecutará con selenium, primero se accede a la ruta, se hace click en la barra de búsqueda, se escribe "sample"
+    # y se presiona enter
+    def test_selenium1(self):
+        self.driver.get("http://localhost:5000/")
+        self.driver.set_window_size(1346, 748)
+        self.driver.find_element(By.ID, "search-query").click()
+        self.driver.find_element(By.ID, "search-query").send_keys("sample")
+        self.driver.find_element(By.ID, "search-query").send_keys(Keys.ENTER)
+
+
 # se crea una instancia de la clase TestSelenium y se llaman a los métodos de la clase
 test = TestSelenium()
 test.setup_method(None)
 test.test_selenium1()
 test.teardown_method(None)
+
 
 def test_selenium2():
 
@@ -46,26 +49,33 @@ def test_selenium2():
         host = get_host_for_selenium_testing()
 
         # Paso 1: Ir a la página de búsqueda
-        driver.get(f'{host}/explore')
+        driver.get(f"{host}/explore")
 
         # Esperar a que cargue la página por completo
         WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.ID, 'filters'))
+            EC.presence_of_element_located((By.ID, "filters"))
         )
 
         # Paso 2: Filtrar por número de autores
         num_authors_select = Select(driver.find_element(By.ID, "num_authors"))
         num_authors_select.select_by_index(1)  # Seleccionar la segunda opción
-        assert num_authors_select.first_selected_option.text == 'Proyecto individual', 'Filtro de número de autores no aplicado'
+        assert (
+            num_authors_select.first_selected_option.text == "Proyecto individual"
+        ), "Filtro de número de autores no aplicado"
         time.sleep(1)  # Esperamos a que se aplique el filtro
 
         # Paso 3: Filtrar por validación de archivos UVL
-        search_by_uvl_validation = driver.find_element(By.XPATH, "//*[@id='uvl_validation']")
-        assert search_by_uvl_validation.is_displayed(), 'Botón de validación de archivos UVL no encontrado'
+        search_by_uvl_validation = driver.find_element(
+            By.XPATH, "//*[@id='uvl_validation']"
+        )
+        assert (
+            search_by_uvl_validation.is_displayed()
+        ), "Botón de validación de archivos UVL no encontrado"
         search_by_uvl_validation.click()
 
     finally:
         # Cerrar el navegador
         close_driver(driver)
+
 
 test_selenium2()
