@@ -7,6 +7,9 @@ on:
   push:
     branches:
       - feature*  # Ejecuta el workflow en ramas que comiencen con feature/
+      - test*
+      - bugfix*
+      - improve*
 
 jobs:
   linting:
