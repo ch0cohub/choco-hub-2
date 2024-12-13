@@ -1,19 +1,17 @@
 name: Refactor Workflow
 
-
 permissions:
   contents: write
 
 on:
   push:
     branches:
-      - main
-  pull_request:
+      - feature*  # Ejecuta el workflow en ramas que comiencen con feature/
 
 jobs:
-  flake8:
+  linting:
+    name: Lint Code
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -27,6 +25,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt  
+          pip install flake8 black
 
       - name: Run Flake8 for linting
         run: |
@@ -43,7 +42,7 @@ jobs:
 
               git add .
               git commit -m "Refactor code with Black auto-formatting"
-              git push origin ${{ github.ref_name }}  # Asegúrate de hacer push a la rama actual
+              git push  # Asegúrate de hacer push a la rama actual
           else
               echo "No changes detected by Black."
           fi
