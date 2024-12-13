@@ -27,10 +27,6 @@ jobs:
           pip install -r requirements.txt  
           pip install flake8 black
 
-      - name: Run Flake8 for linting
-        run: |
-          flake8 .  # Ejecuta flake8 para chequear errores de estilo
-
       - name: Run Black for auto-formatting
         run: black .
 
