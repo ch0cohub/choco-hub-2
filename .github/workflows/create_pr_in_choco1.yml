@@ -16,8 +16,8 @@ jobs:
 
     - name: Set up Git
       run: |
-        git config --global user.name "angelneria"
-        git config --global user.email "angneraca@alum.us.es"
+        git config --global user.name "ManuelVelezLopez"
+        git config --global user.email "manvellop2@alum.us.es"
 
     - name: Configure SSH key
       run: |
@@ -42,12 +42,16 @@ jobs:
         
         git push origin choco2-repo-branch-1-12
    
-        gh auth login --with-token <<< "${{ secrets.GH_TOKEN }}"
+        gh auth login --with-token <<< "${{ secrets.GH_TOKEN_ANGEL }}"
         gh pr create \
           --title "Sync from choco2/main" \
           --body "This PR merges changes from choco2/main into choco1/develop." \
           --base develop \
           --head choco2-repo-branch-1-12
+
+
+
+
 
 
 
