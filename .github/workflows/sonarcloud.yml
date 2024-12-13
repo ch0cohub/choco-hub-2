@@ -2,7 +2,7 @@ name: Build
 on:
   push:
     branches:
-      - main
+      - sonarcloud_workflow
   pull_request:
     branches:
       - main
