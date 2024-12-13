@@ -15,7 +15,7 @@
 ### Ramas de Trabajo por Work Item (WI)
 
 #### Rama por Work Item (WI)
-- Para cada Work Item (WI), se crea una rama específica, nombrada a partir del WI con el que se esté trabajando. Su nombre debera empezar por WI-X-nombreDeElWI donde X es el numero del WI
+- Para cada Work Item (WI), se crea una rama específica, nombrada a partir del WI con el que se esté trabajando. Su nombre debera empezar por WI-X- donde X es el numero del WI,y despues debera seguir con el nombre del work item.
 - Estas ramas permiten que cada WI se desarrolle de forma aislada y facilite su revisión y pruebas.
 - Las ramas de WI se crean a partir de `main` y se fusionan de vuelta a `main` una vez que el trabajo ha sido revisado y aprobado.
 
