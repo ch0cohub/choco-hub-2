@@ -46,4 +46,4 @@ jobs:
             MARIADB_USER: uvlhub_user
             MARIADB_PASSWORD: uvlhub_password
         run: |
-          rosemary test
+          pytest app/modules/ --ignore-glob='*selenium*'

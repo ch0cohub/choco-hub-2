@@ -23,6 +23,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Asegura que se obtienen todas las etiquetas
 
       - name: Set up Git
         run: |
@@ -49,7 +51,12 @@ jobs:
       - name: Generate Tag Version
         id: tag
         run: |
-          latest_tag=$(git tag --sort=-v:refname | head -n 1 || echo "v0.0.0")
+          latest_tag=$(git tag --sort=-v:refname | head -n 1)
+
+          if [ -z "$latest_tag" ]; then
+            echo "No tags found. Defaulting to v0.0.0."
+            latest_tag="v0.0.0"
+          fi
 
           if [[ ! "$latest_tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "Invalid tag format: $latest_tag. Defaulting to v0.0.0."
@@ -66,6 +73,7 @@ jobs:
           esac
 
           new_tag="v${major}.${minor}.${patch}"
+          echo "Generated new tag: $new_tag"
           echo "tag=$new_tag" >> $GITHUB_ENV
 
       - name: Create Tag
