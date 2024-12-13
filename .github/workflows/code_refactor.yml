@@ -45,10 +45,27 @@ jobs:
           else
               echo "No changes detected by Black."
           fi
-          gh auth login --with-token <<< "${{ secrets.GH_TOKEN }}"
-          gh pr create \
-            --title "refactor from ${{ github.ref_name }} " \
-            --body "This PR merges changes from ${{ github.ref_name }} into choco2/main." \
-            --base main \
-            --head ${{ github.ref_name }}
 
+      - name: Create or Update Pull Request
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          existing_pr=$(gh pr list \
+            --base main \
+            --head "${{ github.ref_name }}" \
+            --json number,title \
+            --jq '.[] | select(.title == "refactor from '${{ github.ref_name }}'").number')
+
+          if [ -z "$existing_pr" ]; then
+              echo "No existe un PR con el mismo título, creando uno nuevo..."
+              gh pr create \
+                --title "refactor from ${{ github.ref_name }}" \
+                --body "Este PR fusiona cambios desde ${{ github.ref_name }} hacia main." \
+                --base main \
+                --head "${{ github.ref_name }}"
+          else
+              echo "Ya existe un PR (#${existing_pr}) con el mismo título, actualizándolo..."
+              gh pr edit "$existing_pr" \
+                --title "refactor from ${{ github.ref_name }}" \
+                --body "Actualizando el PR existente para fusionar cambios desde ${{ github.ref_name }} hacia main."
+          fi
