@@ -50,27 +50,27 @@ jobs:
       run: |
         pytest app/modules/ --ignore-glob='*selenium*'
 
-cleanup_connections:
-    name: Cleanup Filess.io Database Connections
-    runs-on: ubuntu-latest
+  cleanup_connections:
+      name: Cleanup Filess.io Database Connections
+      runs-on: ubuntu-latest
 
-    steps:
-      # Instalar el cliente MySQL
-      - name: Install MySQL client
-        run: sudo apt-get update && sudo apt-get install -y mysql-client
+      steps:
+        # Instalar el cliente MySQL
+        - name: Install MySQL client
+          run: sudo apt-get update && sudo apt-get install -y mysql-client
 
-      # Limpiar conexiones inactivas
-      - name: Cleanup database connections
-        env:
-          DB_HOST: ${{ secrets.FILESS_DB_HOST }}
-          DB_USER: ${{ secrets.FILESS_DB_USER }}
-          DB_PASSWORD: ${{ secrets.FILESS_DB_PASSWORD }}
-        run: |
-          echo "Cleaning up orphaned connections on Filess.io..."
-          mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASSWORD" -e "
-          SELECT CONCAT('KILL ', id, ';')
-          FROM information_schema.processlist
-          WHERE user='$DB_USER' AND command='Sleep';" | mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASSWORD"
+        # Limpiar conexiones inactivas
+        - name: Cleanup database connections
+          env:
+            DB_HOST: ${{ secrets.FILESS_DB_HOST }}
+            DB_USER: ${{ secrets.FILESS_DB_USER }}
+            DB_PASSWORD: ${{ secrets.FILESS_DB_PASSWORD }}
+          run: |
+            echo "Cleaning up orphaned connections on Filess.io..."
+            mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASSWORD" -e "
+            SELECT CONCAT('KILL ', id, ';')
+            FROM information_schema.processlist
+            WHERE user='$DB_USER' AND command='Sleep';" | mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASSWORD"
 
   deploy:
     name: Deploy to Render
