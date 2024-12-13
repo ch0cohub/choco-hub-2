@@ -15,8 +15,8 @@ jobs:
 
     - name: Set up Git
       run: |
-        git config --global user.name "angelneria"
-        git config --global user.email "angneraca@alum.us.es"
+        git config --global user.name "ManuelVelezLopez"
+        git config --global user.email "manvellop2@alum.us.es"
 
     - name: Configure SSH key
       run: |
