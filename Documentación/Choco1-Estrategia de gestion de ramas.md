@@ -12,22 +12,27 @@
 - Es la rama principal de desarrollo.
 - Integra los cambios de todas las ramas de Work Items (WI).
 
-### Ramas de Trabajo por Work Item (WI)
+### Ramas de Trabajo
 
 #### Rama por Work Item (WI)
-- Para cada Work Item (WI), se crea una rama específica, nombrada a partir del WI con el que se esté trabajando. Su nombre debera empezar por WI-X- donde X es el numero del WI,y despues debera seguir con el nombre del work item.
+- Para cada Work Item (WI), se crea una rama específica, nombrada a partir del WI con el que se esté trabajando. Su nombre debera empezar por WI-X- donde X es el numero del WI..
 - Estas ramas permiten que cada WI se desarrolle de forma aislada y facilite su revisión y pruebas.
 - Las ramas de WI se crean a partir de `main` y se fusionan de vuelta a `main` una vez que el trabajo ha sido revisado y aprobado.
 
+#### Rama para Work Flows (WF)
+- Para los Work Flows que lo necesiten se crea una rama específica, que se nombrara empezando siempre por WF-
+- Estas ramas permiten que los WF se desarrolle de forma aislada y facilite su revisión y pruebas.
+- Las ramas de WF se crean a partir de `main` y se fusionan de vuelta a `main` una vez que el trabajo ha sido revisado y aprobado.
+  
 ### Flujo de Trabajo
 
-#### Crear una rama por WI
-1. Al iniciar un nuevo WI, se crea una rama basada en `main` para ese WI.
+#### Crear una rama por WI o para WF
+1. Al iniciar un nuevo WI o WF, se crea una rama basada en `main` para ese trabajo.
 2. Una vez completada la tarea, se realiza un pull request (PR) hacia `main`.
 
 #### Revisión y Fusión a `main`
 - Cada PR hacia `main` debe ser revisado y aprobado antes de la fusión.
-- Al aprobar el PR, la rama del WI se fusiona en `main` y se elimina.
+- Al aprobar el PR, la rama del WI o WF se fusiona en `main` y se elimina.
 
 ---
 
