@@ -43,9 +43,13 @@ jobs:
         git push origin choco1-repo-branch-30-11
    
         gh auth login --with-token <<< "${{ secrets.GH_TOKEN }}"
+
+        # Intentar crear el Pull Request
         gh pr create \
           --title "Sync from choco1/main" \
           --body "This PR merges changes from choco1/main into choco2/main." \
           --base main \
-          --head choco1-repo-branch-30-11
+          --head choco1-repo-branch || \
+        # Si ya existe, actualizar el PR
+        gh pr edit "Sync from choco1/main" --body "Updated with the latest changes from choco1/main."
 
