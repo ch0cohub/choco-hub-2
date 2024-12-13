@@ -45,8 +45,8 @@ jobs:
         gh auth login --with-token <<< "${{ secrets.GH_TOKEN }}"
         gh pr create \
           --title "Sync from choco2/main" \
-          --body "This PR merges changes from choco2/main into choco1/develop." \
-          --base develop \
+          --body "This PR merges changes from choco2/main into choco1/main." \
+          --base main \
           --head choco2-repo-branch-1-12
 
 
