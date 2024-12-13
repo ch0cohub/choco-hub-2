@@ -43,7 +43,7 @@ jobs:
 
         gh auth login --with-token <<< "${{ secrets.GH_TOKEN_ANGEL }}"
           existing_pr=$(gh pr list \
-            --base develop \
+            --base main \
             --head choco2-repo-branch-1-12 \
             --json number \
             --jq '.[0].number')
@@ -51,14 +51,14 @@ jobs:
               echo "No existe un PR con el mismo título, creando uno nuevo..."
               gh pr create \
                 --title "Sync from choco2/main" \
-                --body "This PR merges changes from choco2/main into choco1/develop." \
-                --base develop \
+                --body "This PR merges changes from choco2/main into choco1/main." \
+                --base main \
                 --head choco2-repo-branch-1-12
           else
               echo "Ya existe un PR (#${existing_pr}) con el mismo título, actualizándolo..."
               gh pr edit "$existing_pr" \
                 --title "Sync from choco2/main" \
-                --body "Actualizando el PR existente para fusionar cambios desde choco2-repo-branch-1-12 hacia choco1/develop."
+                --body "Actualizando el PR existente para fusionar cambios desde choco2-repo-branch-1-12 hacia choco1/main."
           fi
         
 
