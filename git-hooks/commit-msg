@@ -7,7 +7,7 @@ COMMIT_MSG_FILE=$1
 COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
 
 # Definir un patrón para validar los prefijos permitidos
-PATTERN="^(feat|test|bugfix): "
+PATTERN="^(feat|test|fix|docs): "
 
 # Validar el mensaje del commit contra el patrón
 if ! echo "$COMMIT_MSG" | grep -qE "$PATTERN"; then
