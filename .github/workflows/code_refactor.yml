@@ -29,6 +29,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt  
           pip install flake8 black
+      - name: Set up Git
+        run: |
+          git config --global user.name "angelneria"
+          git config --global user.email "angneraca@alum.us.es"
+
+      - name: Configure SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
 
       - name: Run Black for auto-formatting
         run: black .
@@ -36,18 +47,17 @@ jobs:
       - name: Commit changes from black
         run: |
           if [[ $(git status --porcelain) ]]; then
-              git config --global user.email "github-actions[bot]@users.noreply.github.com"
-              git config --global user.name "GitHub Actions"
-
               git add .
               git commit -m "Refactor code with Black auto-formatting"
               git push origin ${{ github.ref_name }}  # Empuja solo a la rama feature actual
           else
               echo "No changes detected by Black."
           fi
+      
 
       - name: Create or Update Pull Request
         run: |
+          gh auth login --with-token <<< "${{ secrets.GH_TOKEN_ANGEL }}"
           existing_pr=$(gh pr list \
             --base main \
             --head "${{ github.ref_name }}" \
