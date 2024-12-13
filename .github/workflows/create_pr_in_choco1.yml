@@ -51,12 +51,20 @@ jobs:
               echo "No existe un PR con el mismo título, creando uno nuevo..."
               gh pr create \
                 --title "Sync from choco2/main" \
-                --body "This PR merges changes from choco2/main into choco1/develop." \             
+                --body "This PR merges changes from choco2/main into choco1/develop." \
                 --base develop \
                 --head choco2-repo-branch-1-12
           else
               echo "Ya existe un PR (#${existing_pr}) con el mismo título, actualizándolo..."
               gh pr edit "$existing_pr" \
                 --title "Sync from choco2/main" \
-                --body "Actualizando el PR existente para fusionar cambios desde choco2-repo-branch-1-12 hacia develop."
+                --body "Actualizando el PR existente para fusionar cambios desde choco2-repo-branch-1-12 hacia choco1/develop."
           fi
+        
+
+
+
+
+
+
+
