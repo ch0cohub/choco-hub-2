@@ -15,7 +15,11 @@ def fake_nodo_service():
 def test_test_full_connection(fake_nodo_service):
     """Test para la simulación de prueba de conexión con FakeNodo."""
     # Configuramos el mock
-    fake_nodo_service.test_full_connection = MagicMock(return_value=jsonify({"success": True, "message": "FakeNodo connection test successful."}))
+    fake_nodo_service.test_full_connection = MagicMock(
+        return_value=jsonify(
+            {"success": True, "message": "FakeNodo connection test successful."}
+        )
+    )
 
     # Llamamos al método real
     result = fake_nodo_service.test_full_connection()
@@ -31,18 +35,22 @@ def test_test_full_connection(fake_nodo_service):
 def test_create_new_deposition(fake_nodo_service):
     """Test para la creación de un nuevo deposition."""
     # Configuramos el mock
-    fake_nodo_service.create_new_deposition = MagicMock(return_value={
-        "id": 1234,
-        "title": "Test Dataset",
-        "description": "Test description",
-        "doi": "10.1234/ABCD1234"
-    })
+    fake_nodo_service.create_new_deposition = MagicMock(
+        return_value={
+            "id": 1234,
+            "title": "Test Dataset",
+            "description": "Test description",
+            "doi": "10.1234/ABCD1234",
+        }
+    )
 
     # Llamamos al método real
     result = fake_nodo_service.create_new_deposition("Test Dataset", "Test description")
 
     # Verificamos que el mock fue llamado correctamente
-    fake_nodo_service.create_new_deposition.assert_called_with("Test Dataset", "Test description")
+    fake_nodo_service.create_new_deposition.assert_called_with(
+        "Test Dataset", "Test description"
+    )
 
     # Verificamos la respuesta
     assert result["title"] == "Test Dataset"
@@ -53,10 +61,12 @@ def test_create_new_deposition(fake_nodo_service):
 def test_upload_uvl_file(fake_nodo_service):
     """Test para la subida de un archivo UVL al deposition."""
     # Configuramos el mock
-    fake_nodo_service.upload_file = MagicMock(return_value={
-        "success": True,
-        "message": "File 'dataset_file.uvl' simulated as uploaded to deposition 1234"
-    })
+    fake_nodo_service.upload_file = MagicMock(
+        return_value={
+            "success": True,
+            "message": "File 'dataset_file.uvl' simulated as uploaded to deposition 1234",
+        }
+    )
 
     # Llamamos al método real con un archivo UVL
     result = fake_nodo_service.upload_file(1234, "dataset_file.uvl")
@@ -72,10 +82,12 @@ def test_upload_uvl_file(fake_nodo_service):
 def test_publish_deposition(fake_nodo_service):
     """Test para la publicación de un deposition."""
     # Configuramos el mock
-    fake_nodo_service.publish_deposition = MagicMock(return_value={
-        "success": True,
-        "message": "Deposition 1234 simulated as published."
-    })
+    fake_nodo_service.publish_deposition = MagicMock(
+        return_value={
+            "success": True,
+            "message": "Deposition 1234 simulated as published.",
+        }
+    )
 
     # Llamamos al método real
     result = fake_nodo_service.publish_deposition(1234)
@@ -86,4 +98,3 @@ def test_publish_deposition(fake_nodo_service):
     # Verificamos la respuesta
     assert result["success"] == True
     assert "simulated as published" in result["message"]
-

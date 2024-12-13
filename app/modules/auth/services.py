@@ -17,7 +17,11 @@ class AuthenticationService(BaseService):
 
     def login(self, email, password, remember=True):
         user = self.repository.get_by_email(email)
-        if user is not None and user.check_password(password) and user.profile.is_verified is True:
+        if (
+            user is not None
+            and user.check_password(password)
+            and user.profile.is_verified is True
+        ):
             login_user(user, remember=remember)
             return True
         return False
@@ -41,10 +45,7 @@ class AuthenticationService(BaseService):
             if not surname:
                 raise ValueError("Surname is required.")
 
-            user_data = {
-                "email": email,
-                "password": password
-            }
+            user_data = {"email": email, "password": password}
 
             profile_data = {
                 "name": name,
@@ -79,9 +80,9 @@ class AuthenticationService(BaseService):
 
     def temp_folder_by_user(self, user: User) -> str:
         return os.path.join(uploads_folder_name(), "temp", str(user.id))
-    
+
     def get_by_email(self, email: str, active: bool = True) -> User:
         return self.repository.get_by_email(email, active)
-    
+
     def get_by_email_without_active(self, email: str) -> User:
         return self.repository.get_by_email(email)
