@@ -1,0 +1,26 @@
+name: Choco 1 Validate branch name
+
+on:
+  create: # Dispara el workflow cuando se crea una nueva rama
+    branches: 
+      - '**'
+
+jobs:
+  validate-branch-name:
+    if: ${{ github.repository == 'ch0cohub/choco-hub-1' }}
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Verificar Nombre de Rama
+        env:
+          BRANCH_NAME: ${{ github.ref_name }}
+        run: |
+          echo "Validando nombre de la rama: $BRANCH_NAME"
+          
+          # Reglas para nombres válidos
+          if [[ "$BRANCH_NAME" =~ ^WI-[0-9]+([-.a-zA-Z0-9_]+)?$ || "$BRANCH_NAME" =~ ^choco2-repo-branch- ]]; then
+            echo "Nombre de rama válido: $BRANCH_NAME"
+          else
+            echo "Error: Nombre de rama inválido. Debe empezar por 'WI-X' donde X es un número, o 'choco2-repo-branch-'"
+            exit 1
+          fi
