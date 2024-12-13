@@ -42,4 +42,10 @@ jobs:
           else
               echo "No changes detected by Black."
           fi
+          gh auth login --with-token <<< "${{ secrets.GH_TOKEN }}"
+          gh pr create \
+            --title "refactor from ${{ github.ref_name }} " \
+            --body "This PR merges changes from ${{ github.ref_name }} into choco2/main." \
+            --base main \
+            --head ${{ github.ref_name }}
 
