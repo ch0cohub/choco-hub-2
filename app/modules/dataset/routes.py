@@ -90,7 +90,7 @@ def create_dataset():
 
         
         try:
-            zenodo_response_json = fakenodo_service.create_new_deposition(dataset)
+            zenodo_response_json = fakenodo_service.create_new_deposition(dataset, description= "Simulating deposition creation on FakeNodo")
             response_data = json.dumps(zenodo_response_json)
             data = json.loads(response_data)
             if data.get("conceptrecid"):
