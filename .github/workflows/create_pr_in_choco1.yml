@@ -7,6 +7,7 @@ on:
 
 jobs:
   create-pr:
+    if: ${{ github.repository == 'ch0cohub/choco-hub-2' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -60,11 +61,6 @@ jobs:
                 --title "Sync from choco2/main" \
                 --body "Actualizando el PR existente para fusionar cambios desde choco2-repo-branch-1-12 hacia choco1/main."
           fi
-        
-
-
-
-
 
 
 

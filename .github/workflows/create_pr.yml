@@ -3,10 +3,11 @@ name: Open Pull Request in Choco2
 on:
   push:
     branches:
-      - develop
+      - main
 
 jobs:
   create-pr:
+    if: ${{ github.repository == 'ch0cohub/choco-hub-1' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -32,19 +33,19 @@ jobs:
         cd choco2
 
         git remote add choco1 https://github.com/ch0cohub/choco-hub-1.git
-        git fetch choco1 develop
+        git fetch choco1 main
 
         git checkout -B choco1-repo-branch-30-11
 
         git pull --no-rebase origin choco1-repo-branch-30-11
-        git merge --no-ff --no-edit --allow-unrelated-histories choco1/develop
+        git merge --no-ff --no-edit --allow-unrelated-histories choco1/main
         
         git push origin choco1-repo-branch-30-11
    
         gh auth login --with-token <<< "${{ secrets.GH_TOKEN }}"
         gh pr create \
-          --title "Sync from choco1/develop" \
-          --body "This PR merges changes from choco1/develop into choco2/main." \
+          --title "Sync from choco1/main" \
+          --body "This PR merges changes from choco1/main into choco2/main." \
           --base main \
           --head choco1-repo-branch-30-11
 
