@@ -12,14 +12,15 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from core.environment.host import get_host_for_selenium_testing
 from core.selenium.common import initialize_driver
 
-class TestDescarDIferentesFormatos():
+
+class TestDescarDIferentesFormatos:
     def setup_method(self, method):
-        self.driver = initialize_driver()  
+        self.driver = initialize_driver()
         self.vars = {}
-    
+
     def teardown_method(self, method):
         self.driver.quit()
-    
+
     def test_descargarUvl(self):
         host = get_host_for_selenium_testing()
         self.driver.get(f"{host}")
@@ -28,25 +29,23 @@ class TestDescarDIferentesFormatos():
         self.driver.find_element(By.ID, "btnGroupDropExportFolder").click()
         self.driver.find_element(By.LINK_TEXT, "UVL").click()
 
-
     def test_descargarGlencoe(self):
         host = get_host_for_selenium_testing()
         self.driver.get(f"{host}")
         self.driver.find_element(By.LINK_TEXT, "Sample dataset 4").click()
         self.driver.find_element(By.ID, "btnGroupDropExportFolder").click()
         self.driver.find_element(By.LINK_TEXT, "GLENCOE").click()
-      
 
     def test_deacragarDimacs(self):
-      host = get_host_for_selenium_testing()
-      self.driver.get(f"{host}")
-      self.driver.find_element(By.LINK_TEXT, "Sample dataset 4").click()
-      self.driver.find_element(By.ID, "btnGroupDropExportFolder").click()
-      self.driver.find_element(By.LINK_TEXT, "DIMACS").click()
-      
+        host = get_host_for_selenium_testing()
+        self.driver.get(f"{host}")
+        self.driver.find_element(By.LINK_TEXT, "Sample dataset 4").click()
+        self.driver.find_element(By.ID, "btnGroupDropExportFolder").click()
+        self.driver.find_element(By.LINK_TEXT, "DIMACS").click()
+
     def test_descargarSplot(self):
-      host = get_host_for_selenium_testing()
-      self.driver.get(f"{host}")
-      self.driver.find_element(By.LINK_TEXT, "Sample dataset 4").click()
-      self.driver.find_element(By.ID, "btnGroupDropExportFolder").click()
-      self.driver.find_element(By.LINK_TEXT, "SPLOT").click()
+        host = get_host_for_selenium_testing()
+        self.driver.get(f"{host}")
+        self.driver.find_element(By.LINK_TEXT, "Sample dataset 4").click()
+        self.driver.find_element(By.ID, "btnGroupDropExportFolder").click()
+        self.driver.find_element(By.LINK_TEXT, "SPLOT").click()

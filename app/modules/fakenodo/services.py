@@ -19,7 +19,9 @@ class FakeNodoService(BaseService):
         Simulate testing connection with FakeNodo.
         """
         logger.info("Simulating connection to FakeNodo...")
-        return jsonify({"success": True, "message": "FakeNodo connection test successful."})
+        return jsonify(
+            {"success": True, "message": "FakeNodo connection test successful."}
+        )
 
     def create_new_deposition(self, title: str, description: str) -> dict:
         """
@@ -27,7 +29,9 @@ class FakeNodoService(BaseService):
         """
         logger.info("Simulating deposition creation on FakeNodo...")
 
-        fake_doi = "10.1234/" + ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+        fake_doi = "10.1234/" + "".join(
+            random.choices(string.ascii_letters + string.digits, k=8)
+        )
 
         deposition = {
             "id": random.randint(1000, 9999),
@@ -43,12 +47,20 @@ class FakeNodoService(BaseService):
         """
         Simulate uploading a file to a deposition.
         """
-        logger.info(f"Simulating file upload to deposition {deposition_id} on FakeNodo...")
-        return {"success": True, "message": f"File '{filename}' simulated as uploaded to deposition {deposition_id}"}
+        logger.info(
+            f"Simulating file upload to deposition {deposition_id} on FakeNodo..."
+        )
+        return {
+            "success": True,
+            "message": f"File '{filename}' simulated as uploaded to deposition {deposition_id}",
+        }
 
     def publish_deposition(self, deposition_id: int) -> dict:
         """
         Simulate publishing a deposition.
         """
         logger.info(f"Simulating publishing deposition {deposition_id} on FakeNodo...")
-        return {"success": True, "message": f"Deposition {deposition_id} simulated as published."}
+        return {
+            "success": True,
+            "message": f"Deposition {deposition_id} simulated as published.",
+        }

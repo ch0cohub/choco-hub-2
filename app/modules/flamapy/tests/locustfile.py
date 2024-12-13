@@ -9,9 +9,9 @@ from app import create_app, db
 class FlamapyBehavior(TaskSet):
     def on_start(self):
         # Inicializar la aplicación Flask
-        
+
         app = create_app()
-        
+
         with app.app_context():
             self.dataset_id = self.create_test_dataset()
         self.index()
@@ -20,40 +20,36 @@ class FlamapyBehavior(TaskSet):
         dataset = DataSet.query.first()
         return dataset.id
 
-   
-
     @task
     def index(self):
         response = self.client.get("/flamapy")
 
         if response.status_code != 200:
             print(f"Flamapy index failed: {response.status_code}")
-    
+
     @task
     def download_glencoe(self):
-       
+
         response = self.client.get(f"/flamapy/download/GLENCOE/{self.dataset_id}")
 
         if response.status_code != 200:
             print(f"GLENCOE download failed: {response.status_code}")
         else:
             print(f"GLENCOE download successful")
-    
-    
+
     @task
     def download_splot(self):
-       
+
         response = self.client.get(f"/flamapy/download/SPLOT/{self.dataset_id}")
 
         if response.status_code != 200:
             print(f"SPLOT download failed: {response.status_code}")
         else:
             print(f"SPLOT download successful")
-    
-    
+
     @task
     def download_dimacs(self):
-       
+
         response = self.client.get(f"/flamapy/download/DIMACS/{self.dataset_id}")
 
         if response.status_code != 200:

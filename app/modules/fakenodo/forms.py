@@ -3,4 +3,4 @@ from wtforms import SubmitField
 
 
 class FakeNodoForm(FlaskForm):
-    submit = SubmitField('Simulate FakeNodo Action')
+    submit = SubmitField("Simulate FakeNodo Action")

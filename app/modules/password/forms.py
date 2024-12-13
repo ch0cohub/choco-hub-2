@@ -3,4 +3,4 @@ from wtforms import SubmitField
 
 
 class PasswordForm(FlaskForm):
-    submit = SubmitField('Save password')
+    submit = SubmitField("Save password")
