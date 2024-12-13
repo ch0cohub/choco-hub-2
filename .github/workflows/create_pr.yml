@@ -37,29 +37,37 @@ jobs:
 
         git checkout -B choco1-repo-branch-30-11
         git pull --no-rebase origin choco1-repo-branch-30-11
-        git merge --no-ff --no-edit --allow-unrelated-histories choco1/main
+        git merge --no-ff --no-edit --allow-unrelated-histories choco1/main || true
 
-        git push origin choco1-repo-branch-30-11
-
-    - name: Check if PR already exists
-      id: check-pr
+    - name: Push changes to choco2
       run: |
-        PR_EXISTS=$(gh pr list --base main --head choco1-repo-branch-30-11 --json number | jq '.[0] | select(. != null) | .number')
-        echo "::set-output name=pr_exists::$PR_EXISTS"
+        git push origin choco1-repo-branch-30-11 || true
 
-    - name: Create Pull Request
-      if: ${{ steps.check-pr.outputs.pr_exists == '' }}
+    - name: Check for differences
+      id: diff-check
       run: |
-        gh auth login --with-token <<< "${{ secrets.GH_TOKEN }}"
-        gh pr create \
-          --title "Sync from choco1/main" \
-          --body "This PR merges changes from choco1/main into choco2/main." \
-          --base main \
-          --head choco1-repo-branch-30-11
+        git fetch origin main
+        if git diff --quiet origin/main choco1-repo-branch-30-11; then
+          echo "No changes to merge." >> $GITHUB_STEP_SUMMARY
+          echo "no_changes=true" >> $GITHUB_ENV
+        else
+          echo "Changes found, PR will be created or updated." >> $GITHUB_STEP_SUMMARY
+          echo "no_changes=false" >> $GITHUB_ENV
+        fi
 
-    - name: Update Pull Request
-      if: ${{ steps.check-pr.outputs.pr_exists != '' }}
+    - name: Update or Create Pull Request
+      if: env.no_changes != 'true'
       run: |
         gh auth login --with-token <<< "${{ secrets.GH_TOKEN }}"
-        PR_NUMBER=${{ steps.check-pr.outputs.pr_exists }}
-        gh pr edit $PR_NUMBER --title "Sync from choco1/main" --body "Updated with the latest changes from choco1/main."
+        EXISTING_PR=$(gh pr list --base main --head choco1-repo-branch-30-11 --json number -q '.[0].number')
+        if [ -z "$EXISTING_PR" ]; then
+          echo "Creating a new Pull Request."
+          gh pr create \
+            --title "Sync from choco1/main" \
+            --body "This PR merges changes from choco1/main into choco2/main." \
+            --base main \
+            --head choco1-repo-branch-30-11
+        else
+          echo "Updating existing Pull Request #$EXISTING_PR."
+          gh pr edit $EXISTING_PR --title "Sync from choco1/main" --body "Updated with the latest changes from choco1/main."
+        fi
