@@ -52,8 +52,8 @@ jobs:
           existing_pr=$(gh pr list \
             --base main \
             --head "${{ github.ref_name }}" \
-            --json number,title \
-            --jq '.[] | select(.title == "refactor from '${{ github.ref_name }}'").number')
+            --json number \
+            --jq '.[0].number')
 
           if [ -z "$existing_pr" ]; then
               echo "No existe un PR con el mismo título, creando uno nuevo..."
