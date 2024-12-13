@@ -34,11 +34,11 @@ jobs:
         run: |
           if [[ $(git status --porcelain) ]]; then
               git config --global user.email "github-actions[bot]@users.noreply.github.com"
-              git config --global user.name "GitHub Actions"  # Asegúrate de configurar el nombre y el correo correctamente
+              git config --global user.name "GitHub Actions"
 
               git add .
               git commit -m "Refactor code with Black auto-formatting"
-              git push  # Asegúrate de hacer push a la rama actual
+              git push origin ${{ github.ref_name }}  # Empuja solo a la rama feature actual
           else
               echo "No changes detected by Black."
           fi
