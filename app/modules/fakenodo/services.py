@@ -1,116 +1,66 @@
 import logging
-import os
+import random
+import string
+from flask import jsonify, Response
 
-from dotenv import load_dotenv
-from app.modules.fakenodo.repositories import DepositionRepo
-from app.modules.fakenodo.models import Deposition
-from app.modules.dataset.models import DataSet, DSMetaData
-from app.modules.featuremodel.models import FeatureModel
-
-from core.configuration.configuration import uploads_folder_name
+from app.modules.fakenodo.repositories import FakeNodoRepository
 from core.services.BaseService import BaseService
-from flask_login import current_user
 
 logger = logging.getLogger(__name__)
 
-load_dotenv()
 
+class FakeNodoService(BaseService):
 
-class FakenodoService(BaseService):
     def __init__(self):
-        self.deposition_repository = DepositionRepo()
+        super().__init__(FakeNodoRepository())
 
-    def create_new_deposition(self, ds_meta_data: DSMetaData) -> dict:
+    def test_full_connection(self) -> Response:
+        """
+        Simulate testing connection with FakeNodo.
+        """
+        logger.info("Simulating connection to FakeNodo...")
+        return jsonify(
+            {"success": True, "message": "FakeNodo connection test successful."}
+        )
 
-        logger.info("Dataset sending to Fakenodo")
-        logger.info(f"Publication type: {ds_meta_data.publication_type.value}")
+    def create_new_deposition(self, title: str, description: str) -> dict:
+        """
+        Simulate creating a new deposition.
+        """
+        logger.info("Simulating deposition creation on FakeNodo...")
 
-        metadataJSON = {
-            "title": ds_meta_data.title,
-            "upload_type": "dataset" if ds_meta_data.publication_type.value == "none" else "publication",
-            "publication_type": (
-                ds_meta_data.publication_type.value
-                if ds_meta_data.publication_type.value != "none"
-                else None
-            ),
-            "description": ds_meta_data.description,
-            "creators": [
-                {
-                    "name": author.name,
-                    **({"affiliation": author.affiliation} if author.affiliation else {}),
-                    **({"orcid": author.orcid} if author.orcid else {}),
-                }
-                for author in ds_meta_data.authors
-            ],
-            "keywords": (
-                ["uvlhub"] if not ds_meta_data.tags else ds_meta_data.tags.split(", ") + ["uvlhub"]
-            ),
-            "access_right": "open"
+        fake_doi = "10.1234/" + "".join(
+            random.choices(string.ascii_letters + string.digits, k=8)
+        )
+
+        deposition = {
+            "id": random.randint(1000, 9999),
+            "title": title,
+            "description": description,
+            "doi": fake_doi,
         }
 
-        try:
-            deposition = self.deposition_repository.create_new_deposition(metadata=metadataJSON)
+        logger.info(f"Fake deposition created: {deposition}")
+        return deposition
 
-            return {
-                "id": deposition.id,
-                "metadata": metadataJSON,
-                "message": "Deposition succesfully created in Fakenodo"
-            }
-        except Exception as error400:
-            raise Exception(f"Failed to create deposition in Fakenodo with error: {str(error400)}")
-
-    def upload_file(self, dataset: DataSet, deposition_id: int, feature_model: FeatureModel, user=None):
-        
-        uvl_filename = feature_model.fm_meta_data.uvl_filename
-        user_id = current_user.id if user is None else user.id
-        file_path = os.path.join(uploads_folder_name(), f"user_{str(user_id)}", f"dataset_{dataset.id}/", uvl_filename)
-
-        request = {
-            "id": deposition_id,
-            "file": uvl_filename,
-            "fileSize": os.path.getsize(file_path),
-            "message": f"File Uploaded to deposition with id {deposition_id}"
+    def upload_file(self, deposition_id: int, filename: str) -> dict:
+        """
+        Simulate uploading a file to a deposition.
+        """
+        logger.info(
+            f"Simulating file upload to deposition {deposition_id} on FakeNodo..."
+        )
+        return {
+            "success": True,
+            "message": f"File '{filename}' simulated as uploaded to deposition {deposition_id}",
         }
-
-        return request
 
     def publish_deposition(self, deposition_id: int) -> dict:
-
-        deposition = Deposition.query.get(deposition_id)
-        if not deposition:
-            raise Exception("Error 404: Deposition not found")
-
-        try:
-            deposition.doi = f"fakenodo.doi.{deposition_id}"
-            deposition.status = "published"
-            self.deposition_repository.update(deposition)
-
-            response = {
-                "id": deposition_id,
-                "status": "published",
-                "conceptdoi": f"fakenodo.doi.{deposition_id}",
-                "message": "Deposition published successfully in fakenodo."
-            }
-            return response
-
-        except Exception as error:
-            raise Exception(f"Failed to publish deposition with errors: {str(error)}")
-
-    def get_deposition(self, deposition_id: int) -> dict:
-        
-        deposition = Deposition.query.get(deposition_id)
-        if not deposition:
-            raise Exception("Deposition not found")
-
-        response = {
-            "id": deposition.id,
-            "doi": deposition.doi,
-            "metadata": deposition.dep_metadata,
-            "status": deposition.status,
-            "message": "Deposition succesfully get from Fakenodo."
+        """
+        Simulate publishing a deposition.
+        """
+        logger.info(f"Simulating publishing deposition {deposition_id} on FakeNodo...")
+        return {
+            "success": True,
+            "message": f"Deposition {deposition_id} simulated as published.",
         }
-        return response
-
-    def get_doi(self, deposition_id: int) -> str:
-        
-        return self.get_deposition(deposition_id).get("doi")

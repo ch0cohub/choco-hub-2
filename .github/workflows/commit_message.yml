@@ -5,6 +5,9 @@ on:
     branches:
       - "main"
       - "feature*"
+      - "bugfix*"
+      - "test*"
+      - "improve*"
   workflow_call:
 
 jobs:
