@@ -71,6 +71,10 @@ class DSMetaData(db.Model):
 class DataSet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    
+    review_score = db.Column(db.Float, nullable=True)
+    
+    DatasetReviews = db.relationship('DatasetReview', backref='data_set', cascade='all, delete')
 
     ds_meta_data_id = db.Column(
         db.Integer, db.ForeignKey("ds_meta_data.id"), nullable=False
@@ -190,3 +194,16 @@ class DOIMapping(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     dataset_doi_old = db.Column(db.String(120))
     dataset_doi_new = db.Column(db.String(120))
+
+
+class DatasetReview(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    value = db.Column(db.Integer)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    data_set_id = db.Column(db.Integer, db.ForeignKey("data_set.id"), nullable=False)
+    
+    __table_args__ = (
+        db.CheckConstraint('value >= 1 AND value <= 5', name='check_value_range_dataset'),
+    )
+
+

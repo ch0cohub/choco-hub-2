@@ -50,3 +50,13 @@ class FMMetrics(db.Model):
 
     def __repr__(self):
         return f"FMMetrics<solver={self.solver}, not_solver={self.not_solver}>"
+ 
+   
+class FeatureModelReview(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    value = db.Column(db.Integer)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    feature_model_id = db.Column(db.Integer, db.ForeignKey('feature_model.id'))
+    __table_args__ = (
+        db.CheckConstraint('value >= 1 AND value <= 5', name='check_value_range_model'),
+    )
