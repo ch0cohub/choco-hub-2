@@ -52,7 +52,7 @@ jobs:
 
   deploy:
     name: Deploy to Render
-    needs: testing
+    needs: cleanup_connections
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
@@ -63,19 +63,3 @@ jobs:
           deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
           curl "$deploy_url"
-          
-      - name: Install MySQL client
-        run: sudo apt-get update && sudo apt-get install -y mysql-client
-
-        # Limpiar conexiones inactivas
-      - name: Cleanup database connections
-        env:
-          DB_HOST: ${{ secrets.FILESS_DB_HOST }}
-          DB_USER: ${{ secrets.FILESS_DB_USER }}
-          DB_PASSWORD: ${{ secrets.FILESS_DB_PASSWORD }}
-        run: |
-            echo "Cleaning up orphaned connections on Filess.io..."
-            mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASSWORD" -e "
-            SELECT CONCAT('KILL ', id, ';')
-            FROM information_schema.processlist
-            WHERE user='$DB_USER' AND command='Sleep';" | mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASSWORD"
