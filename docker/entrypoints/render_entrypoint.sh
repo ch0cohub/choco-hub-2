@@ -14,12 +14,7 @@
 
 # Exit immediately if a command exits with a non-zero status
 set -e
-# Clean up orphaned database connections
-echo "Cleaning up orphaned connections on Filess.io..."
-mysql -u $MARIADB_USER -p$MARIADB_PASSWORD -h $MARIADB_HOSTNAME -e "
-    SELECT CONCAT('KILL ', id, ';')
-    FROM information_schema.processlist
-    WHERE user='$MARIADB_USER' AND command='Sleep';"
+
 
 # Initialize migrations only if the migrations directory doesn't exist
 if [ ! -d "migrations/versions" ]; then

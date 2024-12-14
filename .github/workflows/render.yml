@@ -71,7 +71,7 @@ jobs:
             # Crear un issue si el despliegue falla
             ISSUE_BODY="### Deployment Failed\n\nThe deployment to Render failed with response code: $deploy_response. Please check the logs and try again."
             curl -X POST \
-              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Authorization: token ${{ secrets.GH_TOKEN_ANGEL }}" \
               -d "{\"title\": \"Deployment Failure - Render\", \"body\": \"$ISSUE_BODY\", \"labels\": [\"deploy\", \"failure\"]}" \
               https://api.github.com/repos/${{ github.repository }}/issues
             exit 1  # Para asegurar que la acción falle si el despliegue no fue exitoso
@@ -107,7 +107,7 @@ jobs:
             # Crear un issue si la verificación de salud falla
             ISSUE_BODY="### Deployment Health Check Failed\n\nThe service at https://choco-hub-2.onrender.com/ failed to respond correctly after $retries attempts. Please investigate."
             curl -X POST \
-              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Authorization: token ${{ secrets.GH_TOKEN_ANGEL }}" \
               -d "{\"title\": \"Render Service Health Check Failed\", \"body\": \"$ISSUE_BODY\", \"labels\": [\"health\", \"failure\"]}" \
               https://api.github.com/repos/${{ github.repository }}/issues
             exit 1  # Para asegurar que la acción falle si la verificación de salud falla
