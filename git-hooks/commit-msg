@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# Ruta del archivo del mensaje del commit
+COMMIT_MSG_FILE=$1
+
+# Leer el mensaje del commit
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+# Definir un patrón para validar los prefijos permitidos
+PATTERN="^(feat|test|fix|docs): "
+
+# Validar el mensaje del commit contra el patrón
+if ! echo "$COMMIT_MSG" | grep -qE "$PATTERN"; then
+  echo "❌ Mensaje de commit inválido."
+  echo "Debe comenzar con uno de los prefijos permitidos: feat, test, bugfix."
+  echo "Ejemplo: feat: agregar nueva funcionalidad"
+  exit 1
+fi
+
+# Si el mensaje es válido
+echo "✅ Mensaje de commit válido."
+exit 0
+
