@@ -25,7 +25,6 @@ class AuthenticationService(BaseService):
             login_user(user, remember=remember)
             return True
         return False
-    
 
     def is_email_available(self, email: str) -> bool:
         return self.repository.get_by_email(email) is None
