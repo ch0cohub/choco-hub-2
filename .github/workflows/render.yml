@@ -11,7 +11,7 @@ on:
 jobs:
 
   testing:
-
+    if: ${{ github.repository == 'ch0cohub/choco-hub-2' }}
     name: Run Tests
     runs-on: ubuntu-latest
 
@@ -52,6 +52,7 @@ jobs:
         pytest app/modules/ --ignore-glob='*selenium*'
 
   deploy:
+    if: ${{ github.repository == 'ch0cohub/choco-hub-2' }}
     name: Deploy to Render
     needs: testing
     runs-on: ubuntu-latest
@@ -112,6 +113,3 @@ jobs:
               https://api.github.com/repos/${{ github.repository }}/issues
             exit 1  # Para asegurar que la acción falle si la verificación de salud falla
           fi
-
-
-    

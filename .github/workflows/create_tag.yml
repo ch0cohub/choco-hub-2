@@ -1,0 +1,89 @@
+name: Tag Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: "Type of version to bump (major, minor, patch)"
+        required: true
+        default: "patch"
+
+jobs:
+  tag:
+    if: ${{ github.repository == 'ch0cohub/choco-hub-1' }}
+    name: Create Tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Asegura que se obtienen todas las etiquetas
+
+      - name: Set up Git
+        run: |
+          git config user.name "FrancoDellAguila"
+          git config user.email "francodellaguila@hotmail.com"
+
+      - name: Determine Version Type
+        id: version_type
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "version_type=${{ github.event.inputs.version_type }}" >> $GITHUB_ENV
+          else
+            last_commit=$(git log -1 --pretty=%B)
+            echo "Last commit message: $last_commit"
+            if [[ "$last_commit" =~ "#major" ]]; then
+              echo "version_type=major" >> $GITHUB_ENV
+            elif [[ "$last_commit" =~ "#minor" ]]; then
+              echo "version_type=minor" >> $GITHUB_ENV
+            else
+              echo "version_type=patch" >> $GITHUB_ENV
+            fi
+          fi
+
+      - name: Generate Tag Version
+        id: tag
+        run: |
+          latest_tag=$(git tag --sort=-v:refname | head -n 1)
+
+          if [ -z "$latest_tag" ]; then
+            echo "No tags found. Defaulting to v0.0.0."
+            latest_tag="v0.0.0"
+          fi
+
+          if [[ ! "$latest_tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid tag format: $latest_tag. Defaulting to v0.0.0."
+            latest_tag="v0.0.0"
+          fi
+
+          IFS='.' read -r major minor patch <<< "${latest_tag#v}"
+
+          case "${{ env.version_type }}" in
+            major) major=$((major + 1)); minor=0; patch=0 ;;
+            minor) minor=$((minor + 1)); patch=0 ;;
+            patch) patch=$((patch + 1)) ;;
+            *) echo "Invalid version type"; exit 1 ;;
+          esac
+
+          new_tag="v${major}.${minor}.${patch}"
+          echo "Generated new tag: $new_tag"
+          echo "tag=$new_tag" >> $GITHUB_ENV
+
+      - name: Create Tag
+        run: |
+          git tag -a ${{ env.tag }} -m "Release ${{ env.tag }}"
+          git push origin ${{ env.tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}  # Usar el token de GitHub para autenticación
+
+#Funcionamiento:
+#Automaticamente agrega 1 a patch en cada PR a main
+#Si se agrega #major o #minor al commit cambia a la version correspondiente
+#Tambien se puede hacer manualmente en la pagina de github actions
