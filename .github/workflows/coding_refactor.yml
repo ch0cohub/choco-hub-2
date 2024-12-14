@@ -10,6 +10,7 @@ on:
 
 jobs:
   linting:
+    if: ${{ github.repository == 'ch0cohub/choco-hub-2' }}
     name: Lint Code
     runs-on: ubuntu-latest
     steps:

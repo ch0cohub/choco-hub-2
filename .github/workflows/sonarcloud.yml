@@ -8,6 +8,7 @@ on:
       - main
 jobs:
   sonarcloud:
+    if: ${{ github.repository == 'ch0cohub/choco-hub-1' }}
     name: SonarCloud
     runs-on: ubuntu-latest
     steps:
