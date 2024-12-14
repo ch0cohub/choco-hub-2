@@ -53,7 +53,7 @@ jobs:
   deploy:
     if: ${{ github.repository == 'ch0cohub/choco-hub-2' }}
     name: Deploy to Render
-    needs: cleanup_connections
+    needs: testing
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
