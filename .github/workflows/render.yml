@@ -4,6 +4,7 @@ on:
     push:
       branches:
         - main
+        - featureRenderWorkflow
       tags:
         - 'v*' 
 
@@ -62,4 +63,55 @@ jobs:
         env:
           deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
-          curl "$deploy_url"
+          deploy_response=$(curl -s -w "%{http_code}" -o response.txt "$deploy_url")
+          if [[ "$deploy_response" -ge 200 && "$deploy_response" -lt 300 ]]; then
+            echo "Deployment successful!"
+          else
+            echo "Deployment failed with response code $deploy_response"
+            # Crear un issue si el despliegue falla
+            ISSUE_BODY="### Deployment Failed\n\nThe deployment to Render failed with response code: $deploy_response. Please check the logs and try again."
+            curl -X POST \
+              -H "Authorization: token ${{ secrets.GH_TOKEN_ANGEL }}" \
+              -d "{\"title\": \"Deployment Failure - Render\", \"body\": \"$ISSUE_BODY\", \"labels\": [\"deploy\", \"failure\"]}" \
+              https://api.github.com/repos/${{ github.repository }}/issues
+            exit 1  # Para asegurar que la acción falle si el despliegue no fue exitoso
+          fi
+
+      - name: Wait before verifying deployment
+        run: |
+          echo "Waiting for 1 minute before checking the deployment..."
+          sleep 60  # Esperar 60 segundos (ajustable según el tiempo que pueda tomar el despliegue)
+
+      - name: Verify Deployment on Render
+        run: |
+          health_check_url="https://choco-hub-2.onrender.com/"
+          retries=5
+          success=false
+          
+          # Intentar varias veces en intervalos de 30 segundos
+          for i in $(seq 1 $retries); do
+            health_check_response=$(curl -s -w "%{http_code}" -o /dev/null "$health_check_url")
+            echo "Attempt $i: Health check response code: $health_check_response"
+            if [[ "$health_check_response" -eq 200 ]]; then
+              success=true
+              break
+            fi
+            echo "Waiting for 30 seconds before retrying..."
+            sleep 30  # Esperar 30 segundos antes de intentar nuevamente
+          done
+
+          if [[ "$success" == true ]]; then
+            echo "Service is healthy and responding with HTTP 200!"
+          else
+            echo "Service health check failed after $retries attempts."
+            # Crear un issue si la verificación de salud falla
+            ISSUE_BODY="### Deployment Health Check Failed\n\nThe service at https://choco-hub-2.onrender.com/ failed to respond correctly after $retries attempts. Please investigate."
+            curl -X POST \
+              -H "Authorization: token ${{ secrets.GH_TOKEN_ANGEL }}" \
+              -d "{\"title\": \"Render Service Health Check Failed\", \"body\": \"$ISSUE_BODY\", \"labels\": [\"health\", \"failure\"]}" \
+              https://api.github.com/repos/${{ github.repository }}/issues
+            exit 1  # Para asegurar que la acción falle si la verificación de salud falla
+          fi
+
+
+    
