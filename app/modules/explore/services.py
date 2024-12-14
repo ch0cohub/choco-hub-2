@@ -8,4 +8,3 @@ class ExploreService(BaseService):
 
     def filter(self, search_criteria, **kwargs):
         return self.repository.filter(search_criteria, **kwargs)
-        

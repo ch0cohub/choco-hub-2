@@ -1,0 +1,44 @@
+name: Refactor Workflow
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  linting:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt  
+          pip install flake8 black
+
+      - name: Run Black for auto-formatting
+        run: black .
+
+      - name: Commit changes from black
+        run: |
+          if [[ $(git status --porcelain) ]]; then
+              git config --global user.email "github-actions[bot]@users.noreply.github.com"
+              git config --global user.name "GitHub Actions"
+
+              git add .
+              git commit -m "Refactor code with Black auto-formatting"
+              git push origin ${{ github.ref_name }}  # Empuja solo a la rama feature actual
+          else
+              echo "No changes detected by Black."
+          fi

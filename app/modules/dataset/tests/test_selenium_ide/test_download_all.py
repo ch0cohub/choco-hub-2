@@ -13,15 +13,16 @@ def wait_for_page_to_load(driver, timeout=4):
     WebDriverWait(driver, timeout).until(
         lambda driver: driver.execute_script("return document.readyState") == "complete"
     )
-  
+
+
 def test_downloadall():
     driver = initialize_driver()
-    
+
     try:
         host = get_host_for_selenium_testing()
         driver.get(f"{host}/")
         wait_for_page_to_load(driver)
-        download_button=driver.find_element(By.LINK_TEXT, "Download all datasets!")
+        download_button = driver.find_element(By.LINK_TEXT, "Download all datasets!")
         wait_for_page_to_load(driver)
         download_button.click()
 
@@ -30,8 +31,5 @@ def test_downloadall():
         # Close the browser
         close_driver(driver)
 
-test_downloadall()
-    
-    
 
-  
+test_downloadall()

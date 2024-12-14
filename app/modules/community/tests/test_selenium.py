@@ -131,7 +131,6 @@ class TestTestcrearcomunidad():
   
 
 
-
   def test_eliminarcomunidad(self):
     host = get_host_for_selenium_testing()
     self.driver.get(f"{host}")  

@@ -8,7 +8,7 @@ from flask import url_for
 from app.modules.conftest import login
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def test_client(test_client):
     """
     Extends the test_client fixture to add additional specific data for module testing.
@@ -30,7 +30,7 @@ def test_send_change_password_email(test_client):
     password_service = PasswordService()
 
     # Mockear el método send_email
-    with patch('app.mail_configuration.send_email') as mock_send_email:
+    with patch("app.mail_configuration.send_email") as mock_send_email:
         # Email ficticio para la prueba
         test_email = "testuser@gmail.com"
 
@@ -44,10 +44,10 @@ def test_send_change_password_email(test_client):
 
         # Verificar que los argumentos son correctos
         args, kwargs = mock_send_email.call_args
-        assert kwargs['subject'] == "Please confirm your Identity"
-        assert kwargs['recipients'] == [test_email]
-        assert "Please confirm your identity" in kwargs['body']
-        assert "Please confirm your identity" in kwargs['html_body']
+        assert kwargs["subject"] == "Please confirm your Identity"
+        assert kwargs["recipients"] == [test_email]
+        assert "Please confirm your identity" in kwargs["body"]
+        assert "Please confirm your identity" in kwargs["html_body"]
 
 
 def test_get_email_by_token(test_client):
@@ -69,7 +69,7 @@ def test_change_password(test_client):
     Verifica que la contraseña se cambie correctamente.
     """
     password_service = PasswordService()
-    
+
     user_email = "testuser@gmail.com"
     new_password = "NewPassword123!"
 
@@ -96,8 +96,10 @@ def test_login_with_new_password(test_client):
     # Verificar que la nueva contraseña sea válida
     response = login(test_client, user_email, new_password)
     assert response.request.path != url_for("auth.login"), "Login was unsuccessful"
-    
-    assert response.status_code == 200, f"Unexpected status code: {response.status_code}"
+
+    assert (
+        response.status_code == 200
+    ), f"Unexpected status code: {response.status_code}"
     test_client.get("/logout", follow_redirects=True)
 
 
@@ -114,9 +116,10 @@ def test_login_with_old_password_after_changed(test_client):
 
     # Verificar que la nueva contraseña sea válida
     response = test_client.post(
-        "/login", data=dict(uemail=user_email, password="Testuser123!"), follow_redirects=True
+        "/login",
+        data=dict(uemail=user_email, password="Testuser123!"),
+        follow_redirects=True,
     )
 
-    assert response.request.path == url_for("auth.login"), "Login was unsuccessful"    
+    assert response.request.path == url_for("auth.login"), "Login was unsuccessful"
     test_client.get("/logout", follow_redirects=True)
-
