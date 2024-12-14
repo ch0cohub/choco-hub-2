@@ -73,7 +73,7 @@ class ExploreRepository(BaseRepository):
         # Order by created_at
         if sorting and sorting == "oldest":
             datasets = datasets.order_by(self.model.created_at.asc())
-        elif sorting:
+        elif sorting and sorting == "newest":
             datasets = datasets.order_by(self.model.created_at.desc())
         elif sorting == "most views":
             datasets = (
