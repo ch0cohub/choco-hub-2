@@ -72,7 +72,8 @@ class DataSet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     
-    review_score = db.Column(db.Float, nullable=True)
+    def review_score(self):
+        return sum(review.value for review in self.DatasetReviews)
     
     DatasetReviews = db.relationship('DatasetReview', backref='data_set', cascade='all, delete')
 
@@ -202,8 +203,6 @@ class DatasetReview(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     data_set_id = db.Column(db.Integer, db.ForeignKey("data_set.id"), nullable=False)
     
-    __table_args__ = (
-        db.CheckConstraint('value >= 1 AND value <= 5', name='check_value_range_dataset'),
-    )
+    meLoInvento = db.Column(db.Integer)
 
 

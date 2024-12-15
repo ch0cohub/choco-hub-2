@@ -142,7 +142,7 @@
                 <div class="row mb-2">
 
                     <div class="col-md-4 col-12">
-                        <span class=" text-secondary">
+                        <span class="text-secondary">
                             Tags
                         </span>
                     </div>
@@ -151,12 +151,31 @@
                         <span class="badge bg-secondary">{{ tag.strip() }}</span>
                         {% endfor %}
                     </div>
-
-                </div>
-
                 
-
-            </div>
+                </div>
+                
+                <div class="row mb-2">
+                    <div class="col-md-4 col-12">
+                        <span class="text-secondary">Likes</span>
+                    </div>
+                    <div class="col-md-8 col-12">
+                        <!-- Like Button -->
+                        <button onclick="handleLike('{{ dataset.id }}', '{{ current_user.id }}', 1)" class="btn btn-primary btn-sm">
+                            Like
+                        </button>
+                        
+                        <!-- Dislike Button -->
+                        <button onclick="handleLike('{{ dataset.id }}', '{{ current_user.id }}', -1)" class="btn btn-danger btn-sm">
+                            Dislike
+                        </button>
+                
+                        <!-- Like Count -->
+                        <span id="like-count-{{ dataset.id }}">{{ dataset.review_score() }}</span>
+                    </div>
+                </div>
+                
+                </div>
+                
 
             {% if dataset.ds_meta_data.dataset_doi %}
             <div class="card-body" style="padding-top: 0px">
@@ -427,6 +446,39 @@
             })
             .catch(error => console.error('Error loading file:', error));
     }
+
+    async function handleLike(datasetId, userId, value) {
+    try {
+        const response = await fetch('/api/dataset/like', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                dataset_id: datasetId,
+                value: value
+            }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Server Error:', errorData);
+            throw new Error('Failed to update like');
+        }
+
+        const data = await response.json();
+        
+        // Update the like count on the page
+        const likeCountElement = document.getElementById(`like-count-${datasetId}`);
+        if (likeCountElement) {
+            likeCountElement.textContent = data.total_likes;
+        }
+    } catch (error) {
+        console.error('Error liking/disliking dataset:', error);
+    }
+}
+
+
 
     function viewFileOther(fileId,format) {
         fetch(`/file/view_other/${fileId}/${format}`)

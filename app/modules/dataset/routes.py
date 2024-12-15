@@ -6,6 +6,8 @@ import tempfile
 import uuid
 from datetime import datetime, timezone
 from zipfile import ZipFile
+from sqlalchemy import or_
+
 
 from flask import (
     redirect,
@@ -21,7 +23,7 @@ from flask import (
 from flask_login import login_required, current_user
 
 from app.modules.dataset.forms import DataSetForm
-from app.modules.dataset.models import DSDownloadRecord, DataSet
+from app.modules.dataset.models import DSDownloadRecord, DataSet, DatasetReview
 from app.modules.dataset import dataset_bp
 from app.modules.dataset.services import (
     AuthorService,
@@ -182,6 +184,34 @@ def upload():
         ),
         200,
     )
+
+
+@dataset_bp.route('/api/dataset/like', methods=['POST'])
+def like_dataset():
+    data = request.get_json()
+    dataset_id = data.get('dataset_id')
+    user_id = current_user.id
+    value = data.get('value')
+
+    if not dataset_id or not user_id or value is None:
+        return jsonify({"error": "Invalid data"}), 400
+
+    # Find existing review or create a new one
+    review = DatasetReview.query.filter_by(data_set_id=dataset_id, user_id=user_id).first()
+    if review:
+        review.value = value
+    else:
+        review = DatasetReview(data_set_id=dataset_id, user_id=user_id, value=value)
+        db.session.add(review)
+
+    db.session.commit()
+
+    total_likes = db.session.query(db.func.sum(DatasetReview.value)) \
+                        .filter(DatasetReview.data_set_id == dataset_id,
+                                or_(DatasetReview.value == 1, DatasetReview.value == -1)) \
+                        .scalar() or 0
+
+    return jsonify({"total_likes": total_likes})
 
 
 @dataset_bp.route("/dataset/file/delete", methods=["POST"])
