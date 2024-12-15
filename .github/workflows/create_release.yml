@@ -39,8 +39,8 @@ jobs:
       - name: Stop if not Major or Minor Version
         if: env.is_release != 'true'
         run: |
-        echo "This is not a major or minor version. Skipping release."
-        exit 0
+            echo "This is not a major or minor version. Skipping release."
+            exit 0
 
 
       - name: Generate Changelog
