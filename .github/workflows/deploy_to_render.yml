@@ -60,13 +60,3 @@ jobs:
           deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
           curl "$deploy_url"
-
-      - name: Run rosemary db:seed
-        env:
-          DB_HOSTNAME: 127.0.0.1
-          DB_PORT: 3306
-          DB_USER: uvlhub_user
-          DB_PASSWORD: uvlhub_password
-        run: |
-          # Ejecuta el comando rosemary db:seed usando las variables de entorno
-          docker-compose run --rm rosemary db:seed
