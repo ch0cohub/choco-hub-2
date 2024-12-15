@@ -32,44 +32,19 @@ jobs:
         git clone git@github.com:ch0cohub/choco-hub-2.git choco2
         cd choco2
 
-        # Agregar choco1 como remoto y obtener los cambios de la rama correcta de choco-hub-1
         git remote add choco1 https://github.com/ch0cohub/choco-hub-1.git
         git fetch choco1 main
 
-        # Crear una nueva rama y fusionar cambios desde choco-hub-1 a choco-hub-2
         git checkout -B choco1-repo-branch-30-11
+
+        git pull --no-rebase origin choco1-repo-branch-30-11
         git merge --no-ff --no-edit --allow-unrelated-histories choco1/main
-
-    - name: Push changes to choco2
-      run: |
-        # Asegurarse de que el push se haga en choco-hub-2
+        
         git push origin choco1-repo-branch-30-11
-
-    - name: Check for differences
-      id: diff-check
-      run: |
-        git fetch origin main
-        if git diff --quiet origin/main choco1-repo-branch-30-11; then
-          echo "No changes to merge." >> $GITHUB_STEP_SUMMARY
-          echo "no_changes=true" >> $GITHUB_ENV
-        else
-          echo "Changes found, PR will be created or updated." >> $GITHUB_STEP_SUMMARY
-          echo "no_changes=false" >> $GITHUB_ENV
-        fi
-
-    - name: Update or Create Pull Request
-      if: env.no_changes != 'true'
-      run: |
+   
         gh auth login --with-token <<< "${{ secrets.GH_TOKEN }}"
-        EXISTING_PR=$(gh pr list --base main --head choco1-repo-branch-30-11 --json number -jq '.[0].number')
-        if [ -z "$EXISTING_PR" ]; then
-          echo "Creating a new Pull Request."
-          gh pr create \
-            --title "Sync from choco1/main" \
-            --body "This PR merges changes from choco1/main into choco2/main." \
-            --base main \
-            --head choco1-repo-branch-30-11
-        else
-          echo "Updating existing Pull Request #$EXISTING_PR."
-          gh pr edit $EXISTING_PR --title "Sync from choco1/main" --body "Updated with the latest changes from choco1/main."
-        fi
+        gh pr create \
+          --title "Sync from choco1/main" \
+          --body "This PR merges changes from choco1/main into choco2/main." \
+          --base main \
+          --head choco1-repo-branch-30-11
