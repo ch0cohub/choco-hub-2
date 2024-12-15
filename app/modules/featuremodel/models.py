@@ -15,7 +15,12 @@ class FeatureModel(db.Model):
         "FMMetaData", uselist=False, backref="feature_model", cascade="all, delete"
     )
     uvl_valid = db.Column(db.Boolean, default=False)
+    
+    FeatureModelReviews = db.relationship('FeatureModelReview', backref='feature_model', cascade='all, delete')
 
+    def review_score(self):
+        return sum(review.value for review in self.FeatureModelReviews)
+    
     def __repr__(self):
         return f"FeatureModel<{self.id}>"
 
@@ -57,6 +62,4 @@ class FeatureModelReview(db.Model):
     value = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     feature_model_id = db.Column(db.Integer, db.ForeignKey('feature_model.id'))
-    __table_args__ = (
-        db.CheckConstraint('value >= 1 AND value <= 5', name='check_value_range_model'),
-    )
+    

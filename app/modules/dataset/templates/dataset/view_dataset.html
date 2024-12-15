@@ -246,156 +246,92 @@
         </div>
 
 
-    </div>
+        <div class="col-xl-4 col-lg-12 col-md-12 col-sm-12">
 
-    <div class="col-xl-4 col-lg-12 col-md-12 col-sm-12">
-
-        <div class="list-group">
-
-            <div class="list-group-item">
-
-                <div class="row">
-                    <div class="col-12 d-flex justify-content-between align-items-center">
-                        <h4 style="margin-bottom: 0px">UVL models</h4>
-                        <h4 style="margin-bottom: 0px;"><span class="badge bg-dark">{{ dataset.get_files_count() }}</span></h4>
+            <div class="list-group">
+        
+                <div class="list-group-item">
+        
+                    <div class="row">
+                        <div class="col-12 d-flex justify-content-between align-items-center">
+                            <h4 style="margin-bottom: 0px">UVL models</h4>
+                            <h4 style="margin-bottom: 0px;"><span class="badge bg-dark">{{ dataset.get_files_count() }}</span></h4>
+                        </div>
                     </div>
+        
                 </div>
-                
-
-            </div>
-            
-
-            {% for feature_model in dataset.feature_models %}
-                {% for file in feature_model.files %}
+        
+                {% for feature_model in dataset.feature_models %}
                     <div class="list-group-item">
                         
                         <div class="row">
                             <div class="col-12">
-
                                 <div class="row">
                                     <div class="col-8">
-                                        <i data-feather="file"></i> {{ file.name }}
-                                        <br>
-                                        <small class="text-muted">({{ file.get_formatted_size() }})</small>
+                                        <h5>{{ feature_model.fm_meta_data.title }}</h5>
+                                        <small class="text-muted">{{ feature_model.fm_meta_data.description }}</small>
                                     </div>
-                                    <div class="col-2">
-                                        <div id="check_{{ file.id }}">
+                                    <div class="col-4 text-end">
+                                        <!-- Likes Section -->
+                                        <div class="row mb-2">
+                                            <div class="col-md-4 col-12">
+                                                <span class="text-secondary">Likes</span>
+                                            </div>
+                                            <div class="col-md-8 col-12">
+                                                <!-- Like Button -->
+                                                <button onclick="handleLikeModel('{{ feature_model.id }}', '{{ current_user.id }}', 1)" class="btn btn-primary btn-sm">
+                                                    Like
+                                                </button>
+                                                
+                                                <!-- Dislike Button -->
+                                                <button onclick="handleLikeModel('{{ feature_model.id }}', '{{ current_user.id }}', -1)" class="btn btn-danger btn-sm">
+                                                    Dislike
+                                                </button>
+        
+                                                <!-- Like Count -->
+                                                <span id="like-count-{{ feature_model.id }}">{{ feature_model.review_score() }}</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-
-                                
-                            </div>
-                            <div class="col-12 text-end" >
-
-                                <div class="btn-group" role="group">
-                                    <button id="btnGroupDropExport{{ file.id }}" type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style=" border-radius: 5px;">
-                                        <i data-feather="download"></i> View
-                                    </button>
-                                    <ul class="dropdown-menu" aria-labelledby="btnGroupDropExport{{ file.id }}">
-                                        <li>
-                                            <a class="dropdown-item" href="#" onclick="viewFile('{{ file.id }}')">
-                                                UVL
-                                            </a>
-                                            <a class="dropdown-item" href="#" onclick="viewFileOther('{{ file.id }}', 'glencoe')">
-                                                Glencoe
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="#" onclick="viewFileOther('{{ file.id }}', 'cnf')">
-                                                DIMACS
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="#" onclick="viewFileOther('{{ file.id }}', 'splot')">
-                                                SPLOT
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-
-                                <div class="btn-group" role="group">
-                                    <button id="btnGroupDrop{{ file.id }}" type="button" class="btn btn-outline-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style=" border-radius: 5px;">
-                                        <i data-feather="check"></i> Check
-                                    </button>
-                                    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop{{ file.id }}">
-                                        <li>
-                                            <a class="dropdown-item" href="javascript:void(0);" onclick="checkUVL('{{ file.id }}')">Syntax check</a>
-                                        </li>
-                                        <!--
-                                        <li>
-                                            <a class="dropdown-item" href="{{ url_for('flamapy.valid', file_id=file.id) }}">SAT validity check</a>
-                                        </li>
-                                        -->
-                                    </ul>
-                                </div>
-                                
-                                <div class="btn-group" role="group">
-                                    <button id="btnGroupDropExport{{ file.id }}" type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style=" border-radius: 5px;">
-                                        <i data-feather="download"></i> Export
-                                    </button>
-                                    <ul class="dropdown-menu" aria-labelledby="btnGroupDropExport{{ file.id }}">
-                                        <li>
-                                            <a class="dropdown-item" href="{{ url_for('hubfile.download_file', file_id=file.id) }}">
-                                                UVL
-                                            </a>
-                                            <a class="dropdown-item" href="{{ url_for('flamapy.to_glencoe', file_id=file.id) }}">
-                                                Glencoe
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="{{ url_for('flamapy.to_cnf', file_id=file.id) }}">
-                                                DIMACS
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="{{ url_for('flamapy.to_splot', file_id=file.id) }}">
-                                                SPLOT
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                                
-                                
-
                             </div>
                         </div>
+        
+                        <!-- Feature Model Files -->
+                        {% for file in feature_model.files %}
+                            <div class="row mt-2">
+                                <div class="col-12">
+                                    <i data-feather="file"></i> {{ file.name }}
+                                    <br>
+                                    <small class="text-muted">({{ file.get_formatted_size() }})</small>
+                                </div>
+                                <div class="col-12 text-end">
+                                    <!-- Export Options -->
+                                    <div class="btn-group" role="group">
+                                        <button id="btnGroupDropExport{{ file.id }}" type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 5px;">
+                                            <i data-feather="download"></i> Export
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="btnGroupDropExport{{ file.id }}">
+                                            <li>
+                                                <a class="dropdown-item" href="{{ url_for('hubfile.download_file', file_id=file.id) }}">UVL</a>
+                                                <a class="dropdown-item" href="{{ url_for('flamapy.to_glencoe', file_id=file.id) }}">Glencoe</a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="{{ url_for('flamapy.to_cnf', file_id=file.id) }}">DIMACS</a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="{{ url_for('flamapy.to_splot', file_id=file.id) }}">SPLOT</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
                     </div>
                 {% endfor %}
-            {% endfor %}
+            </div>
         </div>
         
-    
-        <div class="btn-group" role="group">
-            <button id="btnGroupDropExportFolder" type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 5px;">
-                <i data-feather="download"></i> Download All ({{dataset.get_file_total_size_for_human()}})
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="btnGroupDropExportFolder">
-                
-                <li>
-                    <a class="dropdown-item" href="{{ url_for('dataset.download_dataset', dataset_id=dataset.id) }}">
-                        UVL 
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item" href="{{ url_for('flamapy.download_glencoe_dataset', dataset_id=dataset.id) }}">
-                        GLENCOE 
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item" href="{{ url_for('flamapy.download_dimacs_dataset', dataset_id=dataset.id) }}">
-                        DIMACS 
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item" href="{{ url_for('flamapy.download_splot_dataset', dataset_id=dataset.id) }}">
-                        SPLOT 
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</div>
 
 <!-- Modal-->
 <div class="modal fade" id="fileViewerModal" tabindex="-1" aria-labelledby="fileViewerModalLabel" aria-hidden="true">
@@ -477,6 +413,37 @@
         console.error('Error liking/disliking dataset:', error);
     }
 }
+async function handleLikeModel(featureModelId, userId, value) {
+    try {
+        const response = await fetch('/api/feature_model/like', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                feature_model_id: featureModelId,
+                value: value
+            }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Server Error:', errorData);
+            throw new Error('Failed to update like');
+        }
+
+        const data = await response.json();
+
+        // Update the like count on the page
+        const likeCountElement = document.getElementById(`like-count-${featureModelId}`);
+        if (likeCountElement) {
+            likeCountElement.textContent = data.total_likes;
+        }
+    } catch (error) {
+        console.error('Error liking/disliking feature model:', error);
+    }
+}
+
 
 
 

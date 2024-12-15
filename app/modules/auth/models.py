@@ -18,7 +18,8 @@ class User(db.Model, UserMixin):
     data_sets = db.relationship("DataSet", backref="user", lazy=True)
     profile = db.relationship("UserProfile", backref="user", uselist=False)
     reviews = db.relationship('DatasetReview', backref='user', cascade='all, delete')
-
+    feature_models_reviews = db.relationship("FeatureModelReview", backref='user', cascade='all, delete')
+    
     communities = db.relationship(
         "Community",
         secondary=user_community,
