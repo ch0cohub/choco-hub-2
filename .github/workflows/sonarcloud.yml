@@ -28,7 +28,7 @@ jobs:
       - name: Start systemd services
         run: |
           sudo apt-get update
-          sudo apt-get install -y mariadb-server mysql-server
+          sudo apt-get install -y mariadb-server
           sudo systemctl start mariadb
 
       - name: Run tests with coverage
