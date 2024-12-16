@@ -564,7 +564,7 @@ async function handleLikeModel(featureModelId, userId, value) {
         fetch(`/file/view_other/${fileId}/${format}`)
             .then(response => response.json())
             .then(data => {
-                document.getElementById('fileContent').textContent = data.content;
+                document.getElementById('fileContentView').textContent = data.content;
                 currentFileId = fileId;
                 document.getElementById('downloadButton').href = `/flamapy/to_${format}/${fileId}`;
                 var modal = new bootstrap.Modal(document.getElementById('fileViewerModal'));
