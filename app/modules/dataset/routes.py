@@ -193,7 +193,7 @@ def like_dataset():
     user_id = current_user.id
     value = data.get('value')
 
-    if not dataset_id or not user_id or value is None:
+    if (not dataset_id or not user_id or value is None) or (value != 1 and value != -1):
         return jsonify({"error": "Invalid data"}), 400
 
     # Find existing review or create a new one
@@ -208,8 +208,7 @@ def like_dataset():
 
     total_likes = db.session.query(db.func.sum(DatasetReview.value)) \
                         .filter(
-                            DatasetReview.data_set_id == dataset_id,
-                            (DatasetReview.value == 1 or DatasetReview.value == -1)
+                            DatasetReview.data_set_id == dataset_id
                         ) \
                         .scalar() or 0
 

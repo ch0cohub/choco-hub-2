@@ -21,7 +21,7 @@ def like_feature_model():
     print(user_id)
     value = data.get('value')
 
-    if not feature_model_id or not user_id or value is None:
+    if not feature_model_id or not user_id or value is None or (value != 1 and value != -1):
         return jsonify({"error": "Invalid data"}), 400
 
     # Find existing review or create a new one
@@ -35,8 +35,7 @@ def like_feature_model():
     db.session.commit()
 
     total_likes = db.session.query(db.func.sum(FeatureModelReview.value)) \
-                        .filter(FeatureModelReview.feature_model_id == feature_model_id,
-                                (FeatureModelReview.value == 1 or FeatureModelReview.value == -1)) \
+                        .filter(FeatureModelReview.feature_model_id == feature_model_id) \
                         .scalar() or 0
     print(total_likes)
 
