@@ -1,0 +1,61 @@
+name: Open Issue for Stale Branches
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs daily at midnight (UTC)
+  workflow_dispatch: # Allows manual triggering of the workflow
+
+jobs:
+  check-stale-branches:
+    if: ${{ github.repository == 'ch0cohub/choco-hub-1' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Fetch All Branches
+        run: git fetch --all
+
+      - name: List Stale Branches
+        id: list_stale
+        run: |
+          # Get the current date in seconds since the Unix epoch
+          current_date=$(date +%s)
+
+          # Initialize an empty list to store stale branches
+          stale_branches=""
+
+          # Iterate over all branches except the default branch (e.g., main or master)
+          for branch in $(git for-each-ref --format='%(refname:short) %(committerdate:unix)' refs/heads/ | awk '$2 != "" {print $0}'); do
+            branch_name=$(echo $branch | awk '{print $1}')
+            branch_date=$(echo $branch | awk '{print $2}')
+            
+            # Calculate the age of the branch in seconds
+            age=$((current_date - branch_date))
+
+            # Check if the branch is older than one month (2592000 seconds)
+            if [ $age -gt 2592000 ]; then
+              stale_branches+="$branch_name "
+            fi
+          done
+
+          echo "::set-output name=stale_branches::$stale_branches"
+
+      - name: Open Issues for Stale Branches
+        if: ${{ steps.list_stale.outputs.stale_branches != '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}  # Use GH_TOKEN for authentication
+        run: |
+          for branch in ${{ steps.list_stale.outputs.stale_branches }}; do
+            json_payload=$(jq -n \
+              --arg title "Stale Branch: $branch" \
+              --arg body "The branch '$branch' has not had any commits in over a month. Consider reviewing or archiving it." \
+              --argjson labels '["stale-branch"]' \
+              '{title: $title, body: $body, labels: $labels}')
+            
+            curl -X POST -H "Authorization: token $GH_TOKEN" \
+                 -H "Accept: application/vnd.github.v3+json" \
+                 -d "$json_payload" \
+                 https://api.github.com/repos/${{ github.repository }}/issues
+          done
