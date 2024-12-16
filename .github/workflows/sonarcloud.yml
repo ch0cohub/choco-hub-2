@@ -25,6 +25,11 @@ jobs:
           pip install -r requirements.txt
           pip install pytest pytest-cov
 
+      - name: Start systemd services
+        run: |
+          sudo systemctl start mariadb
+          sudo systemctl start docker
+
       - name: Run tests with coverage
         run: |
           pytest -v --cov=. --ignore-glob='*selenium*' --cov-report=xml --cache-clear
