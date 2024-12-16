@@ -1,18 +1,13 @@
 name: Codacy CI
 
 on:
-
   push:
     branches:
-      - master
-  pull_request:
-    branches:
-      - master
+      - main
 
 jobs:
-
   build:
-
+    if: ${{ github.repository == 'ch0cohub/choco-hub-2' }}
     runs-on: ubuntu-latest
 
     services:
@@ -27,39 +22,32 @@ jobs:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
-    strategy:
-      matrix:
-        python-version: ['3.11', '3.12']
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Check for outdated dependencies
-      run: |
-        pip list --outdated > outdated_dependencies.txt
-        if [ -s outdated_dependencies.txt ]; then
-          echo "There are outdated dependencies!"
-          cat outdated_dependencies.txt
-        else
-          echo "No outdated dependencies found"
-        fi
-   
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: '3.12'
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    
+    - name: Check for outdated dependencies
+      run: |
+          pip list --outdated > outdated_dependencies.txt
+    
+    - name: Show outdated dependencies
+      run: cat outdated_dependencies.txt
 
     - name: Security audit with pip-audit
       run: |
         pip install pip-audit
         pip-audit || true
-
+  
     - name: Upload coverage to Codacy
       run: |
         pip install codacy-coverage
@@ -74,3 +62,14 @@ jobs:
         MARIADB_USER: uvlhub_user
         MARIADB_PASSWORD: uvlhub_password
         CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+
+    - name: Check test coverage and create issue if low
+      run: |
+        coverage report --fail-under=70 || true
+        if [[ $? -ne 0 ]]; then
+          ISSUE_BODY="### Cobertura de test demasiado baja\n\nLa cobertura actual es más baja del 70%. Debe ser mejorada."
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GH_TOKEN_ANGEL }}" \
+            -d "{\"title\": \"Baja cobertura de test\", \"body\": \"$ISSUE_BODY\", \"labels\": [\"coverage\"]}" \
+            https://api.github.com/repos/${{ github.repository }}/issues
+        fi

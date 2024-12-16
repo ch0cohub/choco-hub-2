@@ -97,6 +97,13 @@
 
                         <div class="col-lg-6">
                             <div class="mb-3">
+                                <label class="form-label" for="num_authors">Filtrado por autores participantes</label>
+                                <select class="form-control" id="num_authors" name="num_authors">
+                                    <option value="any">-</option>
+                                    <option value="1">Proyecto individual</option>
+                                    <option value="2-3">Colaboración pequeña</option>
+                                    <option value="4+">Colaboración grande</option>
+                                </select>
                                <label class="form-label" for="author_name">
                                     Search for datasets by author name
                                 </label>
@@ -110,7 +117,7 @@
                         <div class="col-6">
 
                             <div>
-                                Sort results by creation date
+                                Sort results by:
                                 <label class="form-check">
                                     <input class="form-check-input" type="radio" value="newest" name="sorting"
                                            checked="">
@@ -124,8 +131,30 @@
                                       Oldest first
                                     </span>
                                 </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="radio" value="most views" name="sorting"
+                                           checked="">
+                                    <span class="form-check-label">
+                                      Most viewed first
+                                    </span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="radio" value="most downloads" name="sorting"
+                                           checked="">
+                                    <span class="form-check-label">
+                                      Most downloaded first
+                                    </span>
+                                </label>
+                                
                             </div>
 
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="uvl_validation">Filtrar por validación de sus archivos UVL</label>
+                                <input type="checkbox" class="form-check-input" id="uvl_validation" name="uvl_validation">
+                            </div>
                         </div>
 
                     </div>

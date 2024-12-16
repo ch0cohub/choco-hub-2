@@ -60,5 +60,5 @@ cli.add_command(selenium)
 cli.add_command(module_list)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()

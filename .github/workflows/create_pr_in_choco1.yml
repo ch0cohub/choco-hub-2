@@ -1,0 +1,66 @@
+name: Open Pull Request in Choco1
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  create-pr:
+    if: ${{ github.repository == 'ch0cohub/choco-hub-2' }}
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Git
+      run: |
+        git config --global user.name "ManuelVelezLopez"
+        git config --global user.email "manvellop2@alum.us.es"
+
+    - name: Configure SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+    - name: Clone choco1 repository
+      run: |
+        cd ..
+        git clone git@github.com:ch0cohub/choco-hub-1.git choco1
+        cd choco1
+
+        git remote add choco2 https://github.com/ch0cohub/choco-hub-2.git
+        git fetch choco2 main
+
+        git checkout -B choco2-repo-branch-1-12
+
+        git pull --no-rebase origin choco2-repo-branch-1-12
+        git merge --no-ff --no-edit --allow-unrelated-histories choco2/main
+        
+        git push origin choco2-repo-branch-1-12
+
+        gh auth login --with-token <<< "${{ secrets.GH_TOKEN_ANGEL }}"
+          existing_pr=$(gh pr list \
+            --base main \
+            --head choco2-repo-branch-1-12 \
+            --json number \
+            --jq '.[0].number')
+          if [ -z "$existing_pr" ]; then
+              echo "No existe un PR con el mismo título, creando uno nuevo..."
+              gh pr create \
+                --title "Sync from choco2/main" \
+                --body "This PR merges changes from choco2/main into choco1/main." \
+                --base main \
+                --head choco2-repo-branch-1-12
+          else
+              echo "Ya existe un PR (#${existing_pr}) con el mismo título, actualizándolo..."
+              gh pr edit "$existing_pr" \
+                --title "Sync from choco2/main" \
+                --body "Actualizando el PR existente para fusionar cambios desde choco2-repo-branch-1-12 hacia choco1/main."
+          fi
+
+
+

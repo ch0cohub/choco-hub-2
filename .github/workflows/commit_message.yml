@@ -1,0 +1,20 @@
+name: Commits Syntax Checker
+
+on:
+  push:
+    branches:
+      - "main"
+      - "feature*"
+      - "bugfix*"
+      - "test*"
+      - "improve*"
+  workflow_call:
+
+jobs:
+  check:
+    if: ${{ github.repository == 'ch0cohub/choco-hub-2' }}
+    name: Conventional Commits
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: webiny/action-conventional-commits@v1.0.3

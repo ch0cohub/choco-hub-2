@@ -21,9 +21,9 @@ function send_query() {
         publication_type: document.querySelector('#publication_type').value,
         sorting: document.querySelector('[name="sorting"]:checked').value,
         author_name: document.querySelector('#author_name').value,
+        uvl_validation: document.querySelector('#uvl_validation').checked,
+        num_authors: document.querySelector('#num_authors').value
       };
-
-      console.log('criteria: ', searchCriteria);
 
       fetch('/explore', {
         method: 'POST',
@@ -37,7 +37,6 @@ function send_query() {
         })
         .then(data => {
 
-          console.log('data', data);
           document.getElementById('results').innerHTML = '';
 
           // results counter
@@ -52,18 +51,27 @@ function send_query() {
           }
 
           const existingButtons = document.querySelectorAll('.btn-download-all');
-          console.log('existingButtons', existingButtons);
           existingButtons.forEach(button => button.remove());
 
           const downloadButton = document.createElement('button');
-          downloadButton.className = 'btn btn-outline-primary btn-sm mb-3 btn-download-all';
+          downloadButton.className = 'btn btn-primary btn-sm btn-narrow text-white btn-download-all';
           downloadButton.textContent = 'Download All Datasets';
           downloadButton.addEventListener('click', () => {
+            // para descargar los datasets, se hace un fetch a la ruta de descarga de cada dataset, se crea un elemento html <a> con el link de descarga y se hace click en él, y finalmente se elimina el elemento
             for (let i = 0; i < data.length; i++) {
-              window.open(`/dataset/download/${data[i].id}`);
+              const url = `/dataset/download/${data[i].id}`;
+              fetch(url).then(response => response.blob()).then(blob => {
+                const downloadUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = data[i].title + '.zip';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(downloadUrl);
+              });
             }
-          });
-
+          })
           document.getElementById('results').insertAdjacentElement('beforebegin', downloadButton);
 
 
@@ -184,29 +192,34 @@ function clearFilters() {
   // Reset the search query
   let titleInput = document.querySelector('#title');
   titleInput.value = "";
-  // queryInput.dispatchEvent(new Event('input', {bubbles: true}));
 
   // Reset the publication type to its default value
   let publicationTypeSelect = document.querySelector('#publication_type');
   publicationTypeSelect.value = "any"; // replace "any" with whatever your default value is
-  // publicationTypeSelect.dispatchEvent(new Event('input', {bubbles: true}));
 
   // Reset the sorting option
   let sortingOptions = document.querySelectorAll('[name="sorting"]');
   sortingOptions.forEach(option => {
     option.checked = option.value == "newest"; // replace "default" with whatever your default value is
-    // option.dispatchEvent(new Event('input', {bubbles: true}));
   });
 
   // Perform a new search with the reset filters
   titleInput.dispatchEvent(new Event('input', { bubbles: true }));
 
+    // Reset the UVL validation checkbox
+    let uvlValidationCheckbox = document.querySelector('#uvl_validation');
+    uvlValidationCheckbox.checked = false;
+
+    // Reset the num authors input
+    let numAuthorsInput = document.querySelector('#num_authors');
+    numAuthorsInput.value = "any";
+
+    // Perform a new search with the reset filters
+    queryInput.dispatchEvent(new Event('input', {bubbles: true}));
 }
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  //let queryInput = document.querySelector('#query');
-  //queryInput.dispatchEvent(new Event('input', {bubbles: true}));
   let urlParams = new URLSearchParams(window.location.search);
   let titleParam = urlParams.get('query');
 
