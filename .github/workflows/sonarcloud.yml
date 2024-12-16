@@ -56,6 +56,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
+            -Dsonar.verbose=true
             -Dsonar.python.coverage.reportPaths=coverage-reports/coverage.xml
 
       - name: Check coverage.xml
