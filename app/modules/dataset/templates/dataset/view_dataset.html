@@ -493,7 +493,9 @@
                 document.getElementById('downloadButton').href = `/file/download/${fileId}`;
                 var modal = new bootstrap.Modal(document.getElementById('fileEditModal'));
                 document.getElementById('file_id').value = fileId;
-
+            })
+            .catch(error => console.error('Error loading file:', error));
+    }
     async function handleLike(datasetId, userId, value) {
     try {
         const response = await fetch('/api/dataset/like', {
