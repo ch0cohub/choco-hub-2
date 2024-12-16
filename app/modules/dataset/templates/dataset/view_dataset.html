@@ -64,7 +64,9 @@
                         </span>
                     </div>
                     <div class="col-md-8 col-12">
-                        <a href="#">{{ dataset.user.profile.surname }}, {{ dataset.user.profile.name }}</a>
+                        <a href="{{ url_for('profile.user_datasets', user_id=dataset.user.id) }}">
+                            {{ dataset.user.profile.surname }}, {{ dataset.user.profile.name }}
+                        </a>
                     </div>
 
                 </div>
@@ -295,6 +297,13 @@
                                     </div>
                                 </div>
                             </div>
+                        <!-- Feature Model Files -->
+                        {% for file in feature_model.files %}
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <i data-feather="file"></i> {{ file.name }}
+                                <br>
+                                <small class="text-muted">({{ file.get_formatted_size() }})</small>
                             <div class="col-12 text-end">
                                 {% if current_user.id == dataset.user_id %}
                                     <button onclick="editFile('{{ file.id }}')" class="btn btn-outline-secondary btn-sm" style="border-radius: 5px;">
