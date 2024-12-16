@@ -10,6 +10,19 @@ jobs:
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
+       
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: uvlhub_root_password
+          MYSQL_DATABASE: uvlhubdb_test
+          MYSQL_USER: uvlhub_user
+          MYSQL_PASSWORD: uvlhub_password
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,10 +46,6 @@ jobs:
 
       - name: Run tests with coverage
         env:
-          MYSQL_ROOT_PASSWORD: uvlhub_root_password
-          MYSQL_DATABASE: uvlhubdb_test
-          MYSQL_USER: uvlhub_user
-          MYSQL_PASSWORD: uvlhub_password
           FLASK_ENV: testing
           MARIADB_HOSTNAME: 127.0.0.1
           MARIADB_PORT: 3306
@@ -45,7 +54,7 @@ jobs:
           MARIADB_USER: uvlhubdb_user
           MARIADB_PASSWORD: uvlhubdb_password
         run: |
-          pytest -v --cov=app/modules/explore --ignore-glob='*selenium*' --cov-report=xml --cache-clear
+          pytest app/modules  --cov=. --ignore-glob='*selenium*' --cov-report=xml --cache-clear
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
