@@ -34,7 +34,7 @@ jobs:
       - name: Run tests with coverage
         env:
           FLASK_ENV: testing
-          MARIADB_HOSTNAME: localhost
+          MARIADB_HOSTNAME: 127.0.0.1
           MARIADB_PORT: 3306
           MARIADB_DATABASE: uvlhubdb
           MARIADB_TEST_DATABASE: uvlhubdb_test
