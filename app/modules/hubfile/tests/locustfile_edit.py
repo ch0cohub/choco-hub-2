@@ -57,7 +57,7 @@ class EditFileBehavior(TaskSet):
             """
         }
         headers = {'Content-Type': 'application/json'}
-        response = self.client.post("/file/edit/1", json=payload, headers=headers)
+        response = self.client.post("/file/edit/25", json=payload, headers=headers)
 
         if response.status_code != 200:
             print(f"Edit file failed: {response.status_code}")
