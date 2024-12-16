@@ -184,9 +184,8 @@ def edit_file(file_id):
     directory_path = f"uploads/user_{file.feature_model.data_set.user_id}/dataset_{file.feature_model.data_set_id}/"
     parent_directory_path = os.path.dirname(current_app.root_path)
     file_path = os.path.join(parent_directory_path, directory_path, filename)
-    # Get conent from request
+    # Get content from request
     content = request.json.get('content')
-    # Check if the user is the owner of the file
     try:
         if os.path.exists(file_path):
             with open(file_path, 'w') as f:
@@ -254,4 +253,3 @@ def convert_to_splot(content, file):
         splot_content = f.read()
     os.remove(temp_file.name)
     return splot_content
-
