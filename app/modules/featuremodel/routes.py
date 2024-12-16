@@ -18,6 +18,7 @@ def like_feature_model():
     data = request.get_json()
     feature_model_id = data.get('feature_model_id')
     user_id = current_user.id
+    print(user_id)
     value = data.get('value')
 
     if not feature_model_id or not user_id or value is None:
@@ -35,7 +36,8 @@ def like_feature_model():
 
     total_likes = db.session.query(db.func.sum(FeatureModelReview.value)) \
                         .filter(FeatureModelReview.feature_model_id == feature_model_id,
-                                or_(FeatureModelReview.value == 1, FeatureModelReview.value == -1)) \
+                                (FeatureModelReview.value == 1 or FeatureModelReview.value == -1)) \
                         .scalar() or 0
+    print(total_likes)
 
     return jsonify({"total_likes": total_likes})

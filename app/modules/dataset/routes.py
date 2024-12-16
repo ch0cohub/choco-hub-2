@@ -207,8 +207,10 @@ def like_dataset():
     db.session.commit()
 
     total_likes = db.session.query(db.func.sum(DatasetReview.value)) \
-                        .filter(DatasetReview.data_set_id == dataset_id,
-                                or_(DatasetReview.value == 1, DatasetReview.value == -1)) \
+                        .filter(
+                            DatasetReview.data_set_id == dataset_id,
+                            (DatasetReview.value == 1 or DatasetReview.value == -1)
+                        ) \
                         .scalar() or 0
 
     return jsonify({"total_likes": total_likes})
