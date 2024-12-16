@@ -29,11 +29,21 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y mariadb-server
-          sudo apt-get install -y docker
           sudo systemctl start mariadb
-          sudo systemctl start docker
 
       - name: Run tests with coverage
+        env:
+          FLASK_APP_NAME:"UVLHUB.IO(dev)"
+          FLASK_ENV:development
+          DOMAIN:localhost:5000
+          MARIADB_HOSTNAME:localhost
+          MARIADB_PORT:3306
+          MARIADB_DATABASE:uvlhubdb
+          MARIADB_TEST_DATABASE:uvlhubdb_test
+          MARIADB_USER:uvlhubdb_user
+          MARIADB_PASSWORD:uvlhubdb_password
+          MARIADB_ROOT_PASSWORD=:uvlhubdb_root_password
+          WORKING_DIR:""
         run: |
           pytest -v --cov=. --ignore-glob='*selenium*' --cov-report=xml --cache-clear
 
