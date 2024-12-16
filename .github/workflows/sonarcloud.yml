@@ -27,6 +27,9 @@ jobs:
 
       - name: Start systemd services
         run: |
+          sudo apt-get update
+          sudo apt-get install -y mariadb-server
+          sudo apt-get install -y docker
           sudo systemctl start mariadb
           sudo systemctl start docker
 
