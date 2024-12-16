@@ -302,7 +302,7 @@
                                 <br>
                                 <small class="text-muted">({{ file.get_formatted_size() }})</small>
                                 <div class="col-12 text-end">
-                                    {% if current_user.id == dataset.user_id %}
+                                    {% if current_user.id == dataset.user.id %}
                                     <button onclick="editFile('{{ file.id }}')" class="btn btn-outline-secondary btn-sm" style="border-radius: 5px;">
                                         <i data-feather="edit-2"></i> Edit
                                     </button>
@@ -466,7 +466,10 @@
                 document.getElementById('downloadButton').href = `/file/download/${fileId}`;
                 var modal = new bootstrap.Modal(document.getElementById('fileEditModal'));
                 document.getElementById('file_id').value = fileId;
-
+                modal.show();
+            })
+            .catch(error => console.error('Error loading file:', error));
+    }
     async function handleLike(datasetId, userId, value) {
     try {
         const response = await fetch('/api/dataset/like', {
@@ -591,7 +594,6 @@ async function handleLikeModel(featureModelId, userId, value) {
             outputDiv.innerHTML = `<span class="badge badge-danger">An unexpected error occurred: ${error.message}</span>`;
         });
 }
-
 
     /*
     async function valid() {

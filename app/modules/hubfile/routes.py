@@ -181,7 +181,6 @@ def view_file_other_formats(file_id, format):
 def edit_file(file_id):
     file = HubfileService().get_or_404(file_id)
     filename = file.name
-    
     directory_path = f"uploads/user_{file.feature_model.data_set.user_id}/dataset_{file.feature_model.data_set_id}/"
     parent_directory_path = os.path.dirname(current_app.root_path)
     file_path = os.path.join(parent_directory_path, directory_path, filename)
@@ -189,8 +188,6 @@ def edit_file(file_id):
     content = request.json.get('content')
     # Check if the user is the owner of the file
     try:
-        if current_user.id != file.feature_model.data_set.user_id:
-            return jsonify({'success': False, 'error': 'You are not authorized to edit this file'}), 403
         if os.path.exists(file_path):
             with open(file_path, 'w') as f:
                 f.write(content)
