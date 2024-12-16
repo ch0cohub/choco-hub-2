@@ -1,7 +1,9 @@
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
+from app.modules.auth.models import User
+from app.modules.profile.models import UserProfile
 import pytest
 from app import create_app
-from app.modules.dataset.models import DSMetaData, DataSet, PublicationType
+from app.modules.dataset.models import DSMetaData, DataSet, DatasetReview, PublicationType
 from app.modules.dataset.services import DataSetService
 from pathlib import Path
 import zipfile
@@ -24,8 +26,9 @@ def test_client(test_client):
 
         dataset = DataSet(id=1, user_id=1, ds_meta_data_id=dsmetadata.id)
         db.session.add(dataset)
-
+        
         db.session.commit()
+
     yield test_client
 
 
@@ -105,3 +108,76 @@ def test_generate_datasets_and_name_zip(dataset_service, test_client):
     Path(zip_path).unlink()
     temp_file.unlink()
     temp_dataset_path.rmdir()
+
+
+def test_like_dataset_success(test_client):
+    """
+    Test liking a dataset successfully.
+    """
+    # Simulate a logged-in user
+    with patch("flask_login.utils._get_user") as mock_user:
+        mock_user.return_value = MagicMock(id=1)
+
+        # Perform POST request to like the dataset
+        response = test_client.post(
+            "/api/dataset/like",
+            json={"dataset_id": 1, "value": 1},
+        )
+        print("----------------------------------************************--------------------------")
+        print(response.get_json())
+
+        # Check response and database changes
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data["total_likes"] == "1"
+
+        # Verify the review exists in the database
+        review = DatasetReview.query.filter_by(data_set_id=1, user_id=1).first()
+        assert review is not None
+        assert review.value == 1
+
+
+def test_dislike_dataset_success(test_client):
+    """
+    Test disliking a dataset successfully.
+    """
+    # Simulate a logged-in user
+    with patch("flask_login.utils._get_user") as mock_user:
+        mock_user.return_value = MagicMock(id=1)
+
+        # Perform POST request to dislike the dataset
+        response = test_client.post(
+            "/api/dataset/like",
+            json={"dataset_id": 1, "value": -1},
+        )
+
+        # Check response and database changes
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data["total_likes"] == "-1"
+
+        # Verify the review exists in the database
+        review = DatasetReview.query.filter_by(data_set_id=1, user_id=1).first()
+        assert review is not None
+        assert review.value == -1
+
+
+def test_like_dataset_invalid_input(test_client):
+    """
+    Test sending invalid input to the like endpoint.
+    """
+    # Simulate a logged-in user
+    with patch("flask_login.utils._get_user") as mock_user:
+        mock_user.return_value = MagicMock(id=1)
+
+        # Perform POST request with invalid value
+        response = test_client.post(
+            "/api/dataset/like",
+            json={"dataset_id": 1, "value": 2},  # Invalid value (must be 1 or -1)
+        )
+
+        # Check response
+        assert response.status_code == 400
+        data = response.get_json()
+        assert "error" in data
+        assert data["error"] == "Invalid data"
