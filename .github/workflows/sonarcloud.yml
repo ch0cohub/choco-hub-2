@@ -54,3 +54,8 @@ jobs:
         uses: SonarSource/sonarcloud-github-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Check coverage.xml
+        run: |
+          ls -la coverage-reports/
+          cat coverage-reports/coverage.xml
