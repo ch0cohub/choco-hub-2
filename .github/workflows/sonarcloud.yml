@@ -44,10 +44,9 @@ jobs:
           FLASK_ENV: testing
           MARIADB_HOSTNAME: 127.0.0.1
           MARIADB_PORT: 3306
-          MARIADB_DATABASE: uvlhubdb
           MARIADB_TEST_DATABASE: uvlhubdb_test
-          MARIADB_USER: uvlhubdb_user
-          MARIADB_PASSWORD: uvlhubdb_password
+          MARIADB_USER: uvlhub_user
+          MARIADB_PASSWORD: uvlhub_password
         run: |
           pytest --cov=. --ignore-glob='*selenium*' --cov-report=xml
 
