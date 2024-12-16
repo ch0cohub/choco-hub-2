@@ -27,7 +27,7 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          pytest --cov=. --cov-config=.coveragerc --cov-report=xml
+          pytest -v --cov=. --ignore-glob='*selenium*' --cov-report=xml --cache-clear
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
