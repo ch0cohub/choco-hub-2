@@ -303,7 +303,7 @@
                                 <small class="text-muted">({{ file.get_formatted_size() }})</small>
                                 <div class="col-12 text-end">
                                     {% if current_user.id == dataset.user.id %}
-                                    <button onclick="editFile('{{ file.id }}')" class="btn btn-outline-secondary btn-sm" style="border-radius: 5px;">
+                                    <button id="edit{{file.id}}" onclick="editFile('{{ file.id }}')" class="btn btn-outline-secondary btn-sm" style="border-radius: 5px;">
                                         <i data-feather="edit-2"></i> Edit
                                     </button>
                                     {% endif %}
@@ -412,7 +412,7 @@
             <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center;">
                 <h5 class="modal-title" id="fileViewerModalLabel">Feature model view</h5>
                 <div>
-                    <button onclick="save()" class="btn btn-outline-primary btn-sm" id="saveButton"
+                    <button id= save onclick="save()" class="btn btn-outline-primary btn-sm" id="saveButton"
                         style="margin-right: 5px; margin-bottom: 5px; border-radius: 5px;">
                         <i data-feather="save"></i>
                         <input type="hidden" id="file_id" value="0">
