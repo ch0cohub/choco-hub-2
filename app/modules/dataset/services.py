@@ -180,13 +180,13 @@ class DataSetService(BaseService):
         return datasets
 
     def generate_datasets_and_name_zip(self) -> tuple[str, str]:
-        
+
         temp_dir = Path(tempfile.mkdtemp())
         zip_filename = (
             f"chocohub2_datasets_from_{datetime.now().strftime('%d_%m_%Y')}.zip"
         )
         zip_path = temp_dir / zip_filename
-        
+
         with ZipFile(zip_path, "w") as zipf:
             for dataset_info in self.get_synchronized_datasets():
                 dataset_name, dataset_path = dataset_info
@@ -198,7 +198,6 @@ class DataSetService(BaseService):
                         )
 
         return str(zip_path), zip_filename, temp_dir
- 
 
 
 class AuthorService(BaseService):

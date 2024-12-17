@@ -340,7 +340,9 @@ def get_unsynchronized_dataset(dataset_id):
 @dataset_bp.route("/dataset/download/all", methods=["GET"])
 def download_all_dataset():
     try:
-        zip_path, zip_filename, temp_dir = dataset_service.generate_datasets_and_name_zip()
+        zip_path, zip_filename, temp_dir = (
+            dataset_service.generate_datasets_and_name_zip()
+        )
         return send_file(zip_path, as_attachment=True, download_name=zip_filename)
     finally:
         if os.path.exists(temp_dir):
