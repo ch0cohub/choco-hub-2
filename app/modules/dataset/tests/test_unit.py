@@ -93,7 +93,7 @@ def test_generate_datasets_and_name_zip(dataset_service, test_client):
         return_value=[("Test Dataset", str(temp_dataset_path))]
     )
 
-    zip_path, zip_filename = dataset_service.generate_datasets_and_name_zip()
+    zip_path, zip_filename, temp_dir = dataset_service.generate_datasets_and_name_zip()
 
     with zipfile.ZipFile(zip_path, "r") as zipf:
         zip_content = zipf.namelist()
