@@ -377,7 +377,34 @@
                 {% endfor %}
             </div>
         </div>
-        
+        <div class="btn-group" role="group">
+            <button id="btnGroupDropExportFolder" type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 5px;">
+                <i data-feather="download"></i> Download All ({{dataset.get_file_total_size_for_human()}})
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="btnGroupDropExportFolder">
+                
+                <li>
+                    <a class="dropdown-item" href="{{ url_for('dataset.download_dataset', dataset_id=dataset.id) }}">
+                        UVL 
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{{ url_for('flamapy.download_glencoe_dataset', dataset_id=dataset.id) }}">
+                        GLENCOE 
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{{ url_for('flamapy.download_dimacs_dataset', dataset_id=dataset.id) }}">
+                        DIMACS 
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{{ url_for('flamapy.download_splot_dataset', dataset_id=dataset.id) }}">
+                        SPLOT 
+                    </a>
+                </li>
+            </ul>
+        </div>
 
 <!-- View Modal -->
 <div class="modal fade" id="fileViewerModal" tabindex="-1" aria-labelledby="fileViewerModalLabel" aria-hidden="true">
@@ -467,6 +494,7 @@
                 var modal = new bootstrap.Modal(document.getElementById('fileEditModal'));
                 document.getElementById('file_id').value = fileId;
                 modal.show();
+
             })
             .catch(error => console.error('Error loading file:', error));
     }
@@ -538,7 +566,7 @@ async function handleLikeModel(featureModelId, userId, value) {
         fetch(`/file/view_other/${fileId}/${format}`)
             .then(response => response.json())
             .then(data => {
-                document.getElementById('fileContent').textContent = data.content;
+                document.getElementById('fileContentView').textContent = data.content;
                 currentFileId = fileId;
                 document.getElementById('downloadButton').href = `/flamapy/to_${format}/${fileId}`;
                 var modal = new bootstrap.Modal(document.getElementById('fileViewerModal'));
