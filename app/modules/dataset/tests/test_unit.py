@@ -3,7 +3,12 @@ from app.modules.auth.models import User
 from app.modules.profile.models import UserProfile
 import pytest
 from app import create_app
-from app.modules.dataset.models import DSMetaData, DataSet, DatasetReview, PublicationType
+from app.modules.dataset.models import (
+    DSMetaData,
+    DataSet,
+    DatasetReview,
+    PublicationType,
+)
 from app.modules.dataset.services import DataSetService
 from pathlib import Path
 import zipfile
@@ -26,7 +31,7 @@ def test_client(test_client):
 
         dataset = DataSet(id=1, user_id=1, ds_meta_data_id=dsmetadata.id)
         db.session.add(dataset)
-        
+
         db.session.commit()
 
     yield test_client
@@ -123,7 +128,9 @@ def test_like_dataset_success(test_client):
             "/api/dataset/like",
             json={"dataset_id": 1, "value": 1},
         )
-        print("----------------------------------************************--------------------------")
+        print(
+            "----------------------------------************************--------------------------"
+        )
         print(response.get_json())
 
         # Check response and database changes

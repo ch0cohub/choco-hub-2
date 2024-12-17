@@ -15,12 +15,14 @@ class FeatureModel(db.Model):
         "FMMetaData", uselist=False, backref="feature_model", cascade="all, delete"
     )
     uvl_valid = db.Column(db.Boolean, default=False)
-    
-    FeatureModelReviews = db.relationship('FeatureModelReview', backref='feature_model', cascade='all, delete')
+
+    FeatureModelReviews = db.relationship(
+        "FeatureModelReview", backref="feature_model", cascade="all, delete"
+    )
 
     def review_score(self):
         return sum(review.value for review in self.FeatureModelReviews)
-    
+
     def __repr__(self):
         return f"FeatureModel<{self.id}>"
 
@@ -55,11 +57,10 @@ class FMMetrics(db.Model):
 
     def __repr__(self):
         return f"FMMetrics<solver={self.solver}, not_solver={self.not_solver}>"
- 
-   
+
+
 class FeatureModelReview(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     value = db.Column(db.Integer)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    feature_model_id = db.Column(db.Integer, db.ForeignKey('feature_model.id'))
-    
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    feature_model_id = db.Column(db.Integer, db.ForeignKey("feature_model.id"))

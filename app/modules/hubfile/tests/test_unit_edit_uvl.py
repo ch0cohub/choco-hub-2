@@ -50,15 +50,13 @@ def test_edit_file_success(test_client):
     db.session.add(feature_model)
     db.session.commit()
 
-    #Creación del archivo para editar
+    # Creación del archivo para editar
     existe = os.path.exists("uploads/user_1/dataset_99/uvl_test.uvl")
     working_dir = os.getenv("WORKING_DIR", "")
-    src_folder = os.path.join(
-        working_dir, "app", "modules", "dataset", "uvl_examples"
-    )
+    src_folder = os.path.join(working_dir, "app", "modules", "dataset", "uvl_examples")
     dest_folder = os.path.join(
-                working_dir, "uploads", f"user_{dataset.user_id}", f"dataset_{dataset.id}"
-            )
+        working_dir, "uploads", f"user_{dataset.user_id}", f"dataset_{dataset.id}"
+    )
     file_name = "uvl_test.uvl"
     file_path = os.path.join(dest_folder, file_name)
 
@@ -110,4 +108,6 @@ def test_edit_file_success(test_client):
     # Verificar que el contenido ha sido actualizado
     response = test_client.get("/file/view/99")
     assert response.status_code == 200, "No se pudo obtener el archivo editado."
-    assert b"EDITADO" in response.data, "El contenido del archivo no fue actualizado correctamente."
+    assert (
+        b"EDITADO" in response.data
+    ), "El contenido del archivo no fue actualizado correctamente."

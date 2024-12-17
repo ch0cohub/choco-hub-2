@@ -71,11 +71,13 @@ class DSMetaData(db.Model):
 class DataSet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    
+
     def review_score(self):
         return sum(review.value for review in self.DatasetReviews)
-    
-    DatasetReviews = db.relationship('DatasetReview', backref='data_set', cascade='all, delete')
+
+    DatasetReviews = db.relationship(
+        "DatasetReview", backref="data_set", cascade="all, delete"
+    )
 
     ds_meta_data_id = db.Column(
         db.Integer, db.ForeignKey("ds_meta_data.id"), nullable=False
@@ -200,7 +202,5 @@ class DOIMapping(db.Model):
 class DatasetReview(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     value = db.Column(db.Integer)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     data_set_id = db.Column(db.Integer, db.ForeignKey("data_set.id"), nullable=False)
-
-

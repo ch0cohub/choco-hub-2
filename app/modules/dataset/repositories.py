@@ -71,7 +71,7 @@ class DataSetRepository(BaseRepository):
     def get_dataset_name(self, dataset_id: int) -> str:
         dataset = self.model.query.get(dataset_id)
         return dataset.ds_meta_data.title if dataset else f"dataset:{dataset_id}"
-    
+
     def get_dataset_review_score(self, dataset_id: int) -> float:
         dataset = self.model.query.get(dataset_id)
         return dataset.ds_meta_data.review_score if dataset else f"dataset:{dataset_id}"

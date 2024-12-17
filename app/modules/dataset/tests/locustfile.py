@@ -25,7 +25,7 @@ class DatasetBehavior(TaskSet):
         )
         if response.status_code != 200:
             print(f"Signup failed: {response.status_code}")
-    
+
     def loginForRating(self):
         response = self.client.get("/login")
         if response.status_code != 200 or "Login" not in response.text:
@@ -59,13 +59,15 @@ class DatasetBehavior(TaskSet):
                 print(f"Archivo descargado exitosamente: {response.status_code}")
             else:
                 print(f"Error al descargar archivo: {response.status_code}")
-     
+
     @task
     def like_dataset(self):
         # Simulating dataset liking by sending random valid values
         dataset_id = 44  # Simulate a dataset ID range
         value = random.choice([1, -1])  # Simulate liking or disliking
-        headers = {"X-CSRFToken": self.csrf_token} if hasattr(self, "csrf_token") else {}
+        headers = (
+            {"X-CSRFToken": self.csrf_token} if hasattr(self, "csrf_token") else {}
+        )
 
         with self.client.post(
             "/api/dataset/like",
@@ -76,7 +78,9 @@ class DatasetBehavior(TaskSet):
                 data = response.json()
                 print(f"Total likes for dataset {dataset_id}: {data['total_likes']}")
             else:
-                print(f"Error liking dataset {dataset_id}: {response.status_code} - {response.text}")
+                print(
+                    f"Error liking dataset {dataset_id}: {response.status_code} - {response.text}"
+                )
 
     @task
     def update_dataset_community(self):

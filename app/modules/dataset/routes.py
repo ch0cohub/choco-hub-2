@@ -186,18 +186,20 @@ def upload():
     )
 
 
-@dataset_bp.route('/api/dataset/like', methods=['POST'])
+@dataset_bp.route("/api/dataset/like", methods=["POST"])
 def like_dataset():
     data = request.get_json()
-    dataset_id = data.get('dataset_id')
+    dataset_id = data.get("dataset_id")
     user_id = current_user.id
-    value = data.get('value')
+    value = data.get("value")
 
     if (not dataset_id or not user_id or value is None) or (value != 1 and value != -1):
         return jsonify({"error": "Invalid data"}), 400
 
     # Find existing review or create a new one
-    review = DatasetReview.query.filter_by(data_set_id=dataset_id, user_id=user_id).first()
+    review = DatasetReview.query.filter_by(
+        data_set_id=dataset_id, user_id=user_id
+    ).first()
     if review:
         review.value = value
     else:
@@ -206,11 +208,12 @@ def like_dataset():
 
     db.session.commit()
 
-    total_likes = db.session.query(db.func.sum(DatasetReview.value)) \
-                        .filter(
-                            DatasetReview.data_set_id == dataset_id
-                        ) \
-                        .scalar() or 0
+    total_likes = (
+        db.session.query(db.func.sum(DatasetReview.value))
+        .filter(DatasetReview.data_set_id == dataset_id)
+        .scalar()
+        or 0
+    )
 
     return jsonify({"total_likes": total_likes})
 

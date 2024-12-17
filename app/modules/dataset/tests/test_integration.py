@@ -1,4 +1,9 @@
-from app.modules.dataset.models import DSMetaData, DataSet, DatasetReview, PublicationType
+from app.modules.dataset.models import (
+    DSMetaData,
+    DataSet,
+    DatasetReview,
+    PublicationType,
+)
 import pytest
 from app import db
 from app.modules.conftest import login, logout
@@ -19,20 +24,20 @@ def test_client(test_client):
         UserProfile(name="Name", surname="Surname", is_verified=True, user=user_test)
         db.session.add(user_test)
         db.session.commit()
-        
+
         dsmetadata = DSMetaData(
             id=1,
             title="Test Dataset",
             description="Test Description",
             publication_type=PublicationType.JOURNAL_ARTICLE,
             dataset_doi="10.1234/testdataset",
-            tags="tag1,tag2"  # Make sure tags are provided, even if just as a test
-)
+            tags="tag1,tag2",  # Make sure tags are provided, even if just as a test
+        )
         db.session.add(dsmetadata)
 
         dataset = DataSet(id=1, user_id=1, ds_meta_data_id=dsmetadata.id)
         db.session.add(dataset)
-        
+
         db.session.commit()
 
     yield test_client
@@ -127,7 +132,7 @@ def test_download_all_datasets_public_access(test_client):
     assert (
         "zip" in response.headers["Content-Disposition"]
     ), "The file is not a zip file."
-    
+
 
 def test_like_dataset_new_review(test_client):
     """
@@ -148,7 +153,9 @@ def test_like_dataset_new_review(test_client):
 
     # Verify the review is created in the database
     with test_client.application.app_context():
-        review = DatasetReview.query.filter_by(data_set_id=1, user_id=current_user.id).first()
+        review = DatasetReview.query.filter_by(
+            data_set_id=1, user_id=current_user.id
+        ).first()
         assert review is not None, "Review was not created."
         assert review.value == 1, "Review value is incorrect."
 
@@ -161,7 +168,7 @@ def test_like_dataset_update_review(test_client):
     """
     login_response = login(test_client, "user@example.com", "test1234")
     assert login_response.status_code == 200, "Login was unsuccessful."
-    
+
     # Send POST request to update the review
     response = test_client.post(
         "/api/dataset/like",
@@ -174,7 +181,9 @@ def test_like_dataset_update_review(test_client):
 
     # Verify the review is updated in the database
     with test_client.application.app_context():
-        review = DatasetReview.query.filter_by(data_set_id=1, user_id=current_user.id).first()
+        review = DatasetReview.query.filter_by(
+            data_set_id=1, user_id=current_user.id
+        ).first()
         assert review is not None, "Review does not exist."
         assert review.value == -1, "Review value was not updated correctly."
 
@@ -209,4 +218,3 @@ def test_like_dataset_invalid_input(test_client):
     assert "error" in data, "Error message not returned for invalid value."
 
     logout(test_client)
-
