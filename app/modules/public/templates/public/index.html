@@ -81,6 +81,8 @@
                                     <span class="badge bg-secondary">{{ tag.strip() }}</span>
                                 {% endfor %}
                             </div>
+                            <span id="like-count-{{ dataset.id }}">Score: {{ dataset.review_score() }}</span>
+
 
                         </div>
 

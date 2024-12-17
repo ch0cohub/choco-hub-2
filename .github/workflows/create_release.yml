@@ -39,8 +39,8 @@ jobs:
       - name: Stop if not Major or Minor Version
         if: env.is_release != 'true'
         run: |
-            echo "This is not a major or minor version. Skipping release."
-            exit 0
+          echo "This is not a major or minor version. Skipping release."
+          exit 0
 
 
       - name: Generate Changelog
@@ -72,7 +72,7 @@ jobs:
           release_name: ${{ github.ref_name }}
           body: ${{ env.changelog }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           
 #Funcionamiento:
 #Cada vez que se crea un tag, verifica si es un cambio major

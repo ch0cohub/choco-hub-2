@@ -1,0 +1,19 @@
+features
+    Chat
+        mandatory
+            Connection
+                alternative
+                    "Peer 2 Peer"
+                    TEST
+            Messages
+                or
+                    Text
+                    Test
+                    Audio
+        optional
+            "Data Storage"
+            "Media Player"
+
+constraints
+    Server => "Data Storage"
+    Video | Audio => "Media Player"
